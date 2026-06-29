@@ -37,7 +37,8 @@ create table if not exists project_member
     project_id        bigint references project (id) not null,
     user_id           bigint references users (id)    not null,
     role             varchar(50)                     not null,
-    invitationStatus varchar(50)                     not null
+    invitationStatus varchar(50)                     not null,
+    unique(project_id, user_id)
 );
 
 create table if not exists board
@@ -52,6 +53,19 @@ create table if not exists board
     description      text,
     status           varchar(50)                     not null,
     position         int                             not null
+);
+
+create table if not exists board_member
+(
+    id          bigserial                      primary key,
+    created_at  timestamp                      not null default now(),
+    updated_at  timestamp                      not null default now(),
+    created_by  bigint references users(id)    not null,
+    updated_by  bigint references users(id),
+    board_id    bigint references board(id)    not null,
+    user_id     bigint references users(id)    not null,
+    role        varchar(50)                    not null,
+    unique(board_id, user_id)
 );
 
 create table if not exists board_column
