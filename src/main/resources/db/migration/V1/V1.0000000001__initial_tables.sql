@@ -23,7 +23,7 @@ create table if not exists project
     updated_by      bigint references users (id),
     name            varchar(50)                    not null,
     description     text,
-    owner_id         bigint references users (id)  not null,
+    owner_id        bigint references users (id)   not null,
     status          varchar(50)                    not null
 );
 
@@ -34,10 +34,10 @@ create table if not exists project_member
     updated_at       timestamp                       not null default now(),
     created_by       bigint references users (id)    not null,
     updated_by       bigint references users (id),
-    project_id        bigint references project (id) not null,
-    user_id           bigint references users (id)    not null,
+    project_id       bigint references project (id)  not null,
+    user_id          bigint references users (id)    not null,
     role             varchar(50)                     not null,
-    invitationStatus varchar(50)                     not null,
+    invitation_status varchar(50)                     not null,
     unique(project_id, user_id)
 );
 
@@ -48,7 +48,7 @@ create table if not exists board
     updated_at       timestamp                       not null default now(),
     created_by       bigint references users (id)    not null,
     updated_by       bigint references users (id),
-    project_id        bigint references project (id) not null,
+    project_id       bigint references project (id)  not null,
     name             varchar(50)                     not null,
     description      text,
     status           varchar(50)                     not null,
@@ -75,7 +75,7 @@ create table if not exists board_column
     updated_at       timestamp                       not null default now(),
     created_by       bigint references users (id)    not null,
     updated_by       bigint references users (id),
-    board_id          bigint references board (id)   not null,
+    board_id         bigint references board (id)    not null,
     position         int                             not null,
     name             varchar(50)                     not null
 );
@@ -93,14 +93,15 @@ create table if not exists task
     description       text,
     priority          varchar(50)                         not null,
     due_date          timestamp                           not null,
-    position         int                             not null
+    position          int                             not null
 );
 
 create table if not exists task_assignee
 (
+    id            bigserial                      primary key,
     task_id       bigint       not null,
     user_id       bigint       not null,
-    primary key (task_id, user_id),
+    unique (task_id, user_id),
     foreign key (task_id) references task(id),
     foreign key (user_id) references users(id)
 );
@@ -108,16 +109,17 @@ create table if not exists task_assignee
 create table if not exists tag
 (
     id              bigserial                      primary key,
-    project_id       bigint references project(id) not null,
+    project_id      bigint references project(id) not null,
     name            varchar(50)                    not null,
     color           varchar(50)                    not null
 );
 
 create table if not exists task_tag
 (
+    id              bigserial                      primary key,
     task_id       bigint       not null,
     tag_id        bigint       not null,
-    primary key (task_id, tag_id),
+    unique (task_id, tag_id),
     foreign key (task_id) references task(id),
     foreign key (tag_id) references tag(id)
 );
@@ -127,9 +129,9 @@ create table if not exists comment
     id               bigserial                      primary key,
     created_at       timestamp                      not null default now(),
     updated_at       timestamp                      not null default now(),
-    task_id           bigint references task (id)    not null,
-    author_id         bigint references users (id)  not null,
-    text             text                           not null,
+    task_id          bigint references task (id)    not null,
+    author_id        bigint references users (id)   not null,
+    description      text                           not null,
     parent_id        bigint references comment(id)
 );
 
