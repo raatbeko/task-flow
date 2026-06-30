@@ -109,7 +109,7 @@ create table if not exists task_assignee
 create table if not exists tag
 (
     id              bigserial                      primary key,
-    project_id      bigint references project(id) not null,
+    project_id      bigint references project(id)  not null,
     name            varchar(50)                    not null,
     color           varchar(50)                    not null
 );

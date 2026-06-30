@@ -30,11 +30,11 @@ public abstract class AuditableEntity extends BaseEntity {
 
     @CreatedBy
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
     @LastModifiedBy
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
+    @JoinColumn(name = "updated_by", nullable = false)
     private User updatedBy;
 }
