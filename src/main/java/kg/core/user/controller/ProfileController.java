@@ -30,7 +30,10 @@ public class ProfileController {
     ProfileService profileService;
 
     @PatchMapping("/phone")
-    @Operation(summary = "Обновить номер телефона", description = "Обновляет номер телефона текущего пользователя")
+    @Operation(
+            summary = "Обновить номер телефона",
+            description = "Обновляет номер телефона текущего пользователя"
+    )
     public void updatePhone(
             @AuthenticationPrincipal User currentUser,
             @Valid @RequestBody CompleteProfileRequest request
