@@ -3,6 +3,7 @@ package kg.core.comment.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
+import kg.core.base.model.BaseEntity;
 import kg.core.task.model.Task;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(name = "comment")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Comment extends AuditableEntity {
+public class Comment extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

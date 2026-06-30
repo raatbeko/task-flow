@@ -22,7 +22,7 @@ public class Tag extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id", nullable = false)
     Project project;
 
     @NotNull

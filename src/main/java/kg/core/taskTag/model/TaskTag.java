@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Entity
 @Table(
-        name = "tag",
+        name = "task_tag",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"task_id", "tag_id"})}
 )
 @FieldDefaults(level = AccessLevel.PRIVATE)
