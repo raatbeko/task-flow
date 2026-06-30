@@ -3,7 +3,6 @@ package kg.core.project.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
-import kg.core.project.enums.ProjectStatus;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
