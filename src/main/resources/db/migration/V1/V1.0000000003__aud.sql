@@ -150,16 +150,16 @@ create table if not exists aud.task_tag_aud
 
 create table if not exists aud.comment_aud
 (
-    id         bigserial not null,
-    created_at timestamp,
-    updated_at timestamp,
-    task_id    bigint,
-    author_id  bigint,
-    text       text,
-    parent_id  bigint,
-    rev        bigint    not null references revinfo (rev),
-    revtype    smallint,
-    constraint comment_aud_pkey
+    id          bigserial not null,
+    created_at  timestamp,
+    updated_at  timestamp,
+    task_id     bigint,
+    author_id   bigint,
+    description text,
+    parent_id   bigint,
+    rev         bigint    not null references revinfo (rev),
+    revtype     smallint,
+    constraint  comment_aud_pkey
     primary key (id, rev)
 );
 
