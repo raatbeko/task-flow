@@ -1,4 +1,4 @@
-package kg.core.task.enums;
+package kg.core.task.model;
 
 public enum Priority {
     LOW, MEDIUM, HIGH, CRITICAL

@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
 import kg.core.project.model.Project;
-import kg.core.projectMember.enums.InvitationStatus;
-import kg.core.projectMember.enums.Role;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
