@@ -1,23 +1,22 @@
 package kg.core.board.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import kg.core.board.model.BoardStatus;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class BoardResponse {
+@Schema(description = "Ответ с данными о доске")
+public record BoardResponse(
 
-    Long id;
+        @Schema(description = "Идентификатор доски") Long id,
 
-    String name;
+        @Schema(description = "Название доски") String name,
 
-    String description;
+        @Schema(description = "Описание доски") String description,
 
-    int position;
+        @Schema(description = "Позиция доски в проекте") Integer position,
 
-    BoardStatus boardStatus;
+        @Schema(description = "Текущий статус доски (ACTIVE, ARCHIVED)") BoardStatus boardStatus,
 
-    Long projectId;
+        @Schema(description = "Идентификатор проекта, к которому принадлежит доска") Long projectId
+
+) {
 }

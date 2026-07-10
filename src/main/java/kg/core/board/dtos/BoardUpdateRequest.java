@@ -1,20 +1,18 @@
 package kg.core.board.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class BoardUpdateRequest {
+@Schema(description = "Запрос на обновление данных доски")
+public record BoardUpdateRequest (
 
-    @NotBlank
-    private String name;
+        @NotBlank
+        @Schema(description = "Новое название доски") String name,
 
-    private String description;
+        @Schema(description = "Новое описание доски") String description,
 
-    @NotNull
-    private int position;
+        @NotNull
+        @Schema(description = "Новая позиция доски при перемещении") Integer position
+){
 }

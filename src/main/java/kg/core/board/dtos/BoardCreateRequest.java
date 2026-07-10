@@ -1,20 +1,18 @@
 package kg.core.board.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class BoardCreateRequest {
+@Schema(description = "Запрос на создание новой доски")
+public record BoardCreateRequest (
 
-    @NotNull
-    Long projectId;
+        @NotNull
+        @Schema(description = "Идентификатор проекта, к которому относится доска") Long projectId,
 
-    @NotBlank
-    String name;
+        @NotBlank
+        @Schema(description = "Название доски") String name,
 
-    String description;
+        @Schema(description = "Описание доски") String description
+){
 }

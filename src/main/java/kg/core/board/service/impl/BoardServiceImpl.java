@@ -1,7 +1,6 @@
 package kg.core.board.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import kg.core.auth.service.impl.DefaultAccountContextProvider;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.dtos.BoardCreateRequest;
 import kg.core.board.dtos.BoardUpdateRequest;
@@ -25,7 +24,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     ProjectRepository projectRepository;
     BoardMapper boardMapper;
 
-    public BoardServiceImpl(BoardRepository boardRepository, BoardMapper boardMapper, ProjectRepository projectRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, BoardMapper boardMapper, ProjectRepository projectRepository) {
         super(boardRepository);
         this.boardRepository = boardRepository;
         this.boardMapper = boardMapper;
@@ -35,21 +34,23 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     @Override
     @Transactional
-    public Board createBoard(BoardCreateRequest boardCreateRequest) {
-        Project project = projectRepository.findById(boardCreateRequest.getProjectId())
+    public Board create(BoardCreateRequest boardCreateRequest) {
+        Project project = projectRepository.findById(boardCreateRequest.projectId())
                 .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
+
+        int nextPosition = boardRepository.countByProjectId(project.getId());
 
         Board board = boardMapper.toEntity(boardCreateRequest);
         board.setProject(project);
         board.setStatus(BoardStatus.ACTIVE);
-        //TODO POSITION LOGIC AFTER PROJECT IMPL ASKAT
+        board.setPosition(nextPosition);
 
         return boardRepository.save(board);
     }
 
     @Override
     @Transactional
-    public Board updateBoard(Long id, BoardUpdateRequest boardUpdateRequest) {
+    public Board update(Long id, BoardUpdateRequest boardUpdateRequest) {
         Board board = find(id);
         boardMapper.update(boardUpdateRequest, board);
         return boardRepository.save(board);
@@ -73,15 +74,16 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Override
     @Transactional
     public Board duplicate(Long id) {
-        Board originalBoard = get(id);
+        Board originalBoard = find(id);
+        int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
-        //TODO POSITION LOGIC AFTER PROJECT IMPL ASKAT
-        Board copyBoard = new Board();
-        copyBoard.setProject(originalBoard.getProject());
-        copyBoard.setStatus(originalBoard.getStatus());
-        copyBoard.setPosition(originalBoard.getPosition());
-        copyBoard.setName(originalBoard.getName() + " (копия)");
-        copyBoard.setDescription(originalBoard.getDescription());
+        Board copyBoard = Board.builder()
+                .project(originalBoard.getProject())
+                .name(originalBoard.getName())
+                .description(originalBoard.getDescription())
+                .status(BoardStatus.ACTIVE)
+                .position(nextPosition)
+                .build();
 
         return boardRepository.save(copyBoard);
     }

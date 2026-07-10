@@ -9,10 +9,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 @Entity
 @Table(name = "board")
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -32,7 +34,7 @@ public class Board extends AuditableEntity {
 
     @NotNull
     @Column(name = "position", nullable = false)
-    int position;
+    Integer position;
 
     @NotNull
     @Enumerated(EnumType.STRING)

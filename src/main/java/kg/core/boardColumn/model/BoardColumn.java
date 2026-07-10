@@ -29,6 +29,6 @@ public class BoardColumn extends AuditableEntity {
 
     @NotNull
     @Column(name = "position", nullable = false)
-    int position;
+    Integer position;
 
 }

@@ -8,9 +8,13 @@ import kg.core.board.model.Board;
 
 public interface BoardService extends CrudService<Board, Long> {
 
-    Board createBoard(BoardCreateRequest  boardCreateRequest);
-    Board updateBoard(Long id, BoardUpdateRequest boardUpdateRequest);
+    Board create(BoardCreateRequest  boardCreateRequest);
+
+    Board update(Long id, BoardUpdateRequest boardUpdateRequest);
+
     void delete(Long id);
+
     void archive(Long id);
+
     Board duplicate (Long id);
 }
