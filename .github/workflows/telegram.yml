@@ -1,0 +1,19 @@
+# .github/workflows/telegram.yml
+name: Telegram Notify
+on: [push]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🔔 Push в ${{ github.repository }}
+            Ветка: ${{ github.ref_name }}
+            Автор: ${{ github.actor }}
+            Коммит: ${{ github.event.head_commit.message }}
+            ${{ github.event.head_commit.url }}
