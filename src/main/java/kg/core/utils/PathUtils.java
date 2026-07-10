@@ -15,5 +15,6 @@ public final class PathUtils {
     public static final String ADMIN = V1 + "/admin";
     public static final String ADMIN_USERS = ADMIN + "/users";
 
+    public static final String PROJECT = V1 + "/project";
 }
 

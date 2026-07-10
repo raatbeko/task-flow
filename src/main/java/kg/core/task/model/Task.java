@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
 import kg.core.boardColumn.model.BoardColumn;
+import kg.core.project.model.Project;
 import kg.core.task.enums.Priority;
+import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,9 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -47,4 +52,17 @@ public class Task extends AuditableEntity {
     @Column(name = "position", nullable = false)
     int position;
 
+    @ManyToMany
+    @JoinTable(
+            name = "m2m_user_to_tasks",
+            joinColumns = {@JoinColumn(name = "task_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")})
+    private Set<User> usersFavorites = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "m2m_task_tag_to_project",
+            joinColumns = {@JoinColumn(name = "project_id")},
+            inverseJoinColumns = {@JoinColumn(name = "task_tag_id")})
+    private Collection<Project> copiedHistory;
 }

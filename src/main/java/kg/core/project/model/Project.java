@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Collection;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,5 +35,12 @@ public class Project extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     ProjectStatus status;
+
+    @ManyToMany
+    @JoinTable(
+            name = "m2m_tag_to_project",
+            joinColumns = {@JoinColumn(name = "project_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
+    private Collection<Project> copiedHistory;
 
 }
