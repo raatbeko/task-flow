@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping(PathUtils.BOARDS)
+@RequestMapping(PathUtils.BOARD_COLUMN)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
@@ -53,7 +53,7 @@ public class BoardController {
 
     @PutMapping("/{id}")
     @Operation(
-            summary = "Обнововить доску",
+            summary = "Обновить доску",
             description = "Возвращяет информацию о доске"
     )
     public BoardResponse update(@PathVariable Long id, @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
