@@ -1,4 +1,4 @@
-package kg.core.projectMember.enums;
+package kg.core.projectMember.model;
 
 public enum InvitationStatus {
     PENDING,

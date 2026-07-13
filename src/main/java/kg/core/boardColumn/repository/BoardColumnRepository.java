@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BoardColumnRepository extends BaseRepository<BoardColumn, Long> {
+
+    int countByBoardId(Long id);
+
 }

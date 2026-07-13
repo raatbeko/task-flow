@@ -27,6 +27,7 @@ public class Project extends AuditableEntity {
     @Column(name = "description")
     String description;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false )
     User owner;
