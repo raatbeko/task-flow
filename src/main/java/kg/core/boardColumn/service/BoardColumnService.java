@@ -10,7 +10,7 @@ public interface BoardColumnService extends CrudService<BoardColumn, Long> {
 
     BoardColumn create(BoardColumnCreateRequest boardCreateRequest);
 
-    BoardColumn update(BoardColumnUpdateRequest boardColumnUpdateRequest);
+    BoardColumn update(Long id, BoardColumnUpdateRequest boardColumnUpdateRequest);
 
     BoardColumn updatePosition(BoardColumnPositionRequest boardColumnPositionRequest);
 

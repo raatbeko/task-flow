@@ -47,8 +47,11 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     @Override
     @Transactional
-    public BoardColumn update(BoardColumnUpdateRequest boardColumnUpdateRequest) {
-        return null;
+    public BoardColumn update(Long id, BoardColumnUpdateRequest boardColumnUpdateRequest) {
+        BoardColumn boardColumn = find(id);
+        boardColumnMapper.update(boardColumnUpdateRequest, boardColumn);
+        return boardColumnRepository.save(boardColumn);
+
     }
 
     @Override
