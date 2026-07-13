@@ -59,7 +59,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Override
     @Transactional
     public void delete(Long id) {
-        Board board = get(id);
+        Board board = find(id);
         boardRepository.delete(board);
     }
 
