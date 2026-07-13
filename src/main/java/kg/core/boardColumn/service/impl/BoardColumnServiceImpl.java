@@ -11,23 +11,25 @@ import kg.core.boardColumn.mapper.BoardColumnMapper;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long> implements BoardColumnService {
 
     BoardColumnRepository boardColumnRepository;
     BoardColumnMapper boardColumnMapper;
     BoardRepository boardRepository;
 
-
-
     protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardColumnMapper boardColumnMapper, BoardRepository boardRepository) {
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardColumnMapper = boardColumnMapper;
+        this.boardRepository = boardRepository;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Override
     @Transactional
     public void delete(Long id) {
-        BoardColumn boardColumn = get(id);
+        BoardColumn boardColumn = find(id);
         boardColumnRepository.delete(boardColumn);
     }
 }
