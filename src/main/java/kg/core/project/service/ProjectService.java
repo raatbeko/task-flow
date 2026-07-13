@@ -1,13 +1,12 @@
 package kg.core.project.service;
 
 import kg.core.base.service.CrudService;
-import kg.core.user.model.User;
-import kg.core.user.search.UserSearchRequest;
-import org.springframework.data.domain.Page;
+import kg.core.project.model.Project;
 
-import java.util.Optional;
+public interface ProjectService extends CrudService<Project, Long> {
+;
+    void delete(Long id);
 
-public interface ProjectService extends CrudService<User, Long> {
-
+    void archive(Long id);
 
 }
