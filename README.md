@@ -75,3 +75,4 @@ JWT-токен передаётся в заголовке: `Authorization: Beare
 - `s3` — AWS S3
 
 Переключить: `spring.profiles.active=s3` в `application.yaml`.
+
