@@ -3,7 +3,6 @@ package kg.core.project.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
-import kg.core.project.enums.ProjectStatus;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,6 +25,7 @@ public class Project extends AuditableEntity {
     @Column(name = "description")
     String description;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false )
     User owner;

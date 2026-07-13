@@ -1,4 +1,4 @@
-package kg.core.project.enums;
+package kg.core.project.model;
 
 public enum ProjectStatus {
     ACTIVE,

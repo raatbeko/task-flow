@@ -1,4 +1,4 @@
-package kg.core.board.enums;
+package kg.core.board.model;
 
 public enum BoardStatus {
     ACTIVE,
