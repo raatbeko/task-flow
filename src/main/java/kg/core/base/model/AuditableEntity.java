@@ -11,11 +11,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@EntityListeners({AuditingEntityListener.class})
 @MappedSuperclass
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class AuditableEntity extends BaseEntity {
