@@ -12,15 +12,15 @@ import org.mapstruct.MappingTarget;
 public interface BoardColumnMapper {
 
     @Mapping(target = "boardId", source = "board.id")
-    BoardColumnResponse toResponse(BoardColumn boardColumn);
+    BoardColumnResponse toResponse(BoardColumn column);
 
     @Mapping(target = "board", ignore = true)
     @Mapping(target = "position", ignore = true)
-    BoardColumn toEntity(BoardColumnCreateRequest boardColumnCreateRequest);
+    BoardColumn toEntity(BoardColumnCreateRequest request);
 
     @Mapping(target = "board", ignore = true)
     @Mapping(target = "position", ignore = true)
-    void update (BoardColumnUpdateRequest boardColumnUpdateRequest, @MappingTarget BoardColumn boardColumn);
+    void update (BoardColumnUpdateRequest request, @MappingTarget BoardColumn boardColumn);
 
 
 }

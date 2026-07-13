@@ -38,8 +38,8 @@ public class BoardController {
             summary = "Создать доску",
             description = "Создает новую доску внутри указанного проекта со статусом ACTIVE"
     )
-    public BoardResponse create(@Valid @RequestBody BoardCreateRequest boardCreateRequest) {
-        return boardMapper.toResponse(boardService.create(boardCreateRequest));
+    public BoardResponse create(@Valid @RequestBody BoardCreateRequest request) {
+        return boardMapper.toResponse(boardService.create(request));
     }
 
     @GetMapping("/{id}")
@@ -56,8 +56,8 @@ public class BoardController {
             summary = "Обновить доску",
             description = "Возвращяет информацию о доске"
     )
-    public BoardResponse update(@PathVariable Long id, @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
-        return boardMapper.toResponse(boardService.update(id, boardUpdateRequest));
+    public BoardResponse update(@PathVariable Long id, @Valid @RequestBody BoardUpdateRequest request) {
+        return boardMapper.toResponse(boardService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
