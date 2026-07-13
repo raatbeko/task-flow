@@ -3,6 +3,7 @@ package kg.core.project.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
+import kg.core.tag.model.Tag;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,6 +43,6 @@ public class Project extends AuditableEntity {
             name = "m2m_tag_to_project",
             joinColumns = {@JoinColumn(name = "project_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private Collection<Project> copiedHistory;
+    private Collection<Tag> tags;
 
 }
