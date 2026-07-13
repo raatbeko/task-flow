@@ -16,10 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
-        name = "Users",
-        description = "Получение данных пользователя"
+        name = "Проект",
+        description = ""
 )
-@SecurityRequirement(name = "bearer-jwt")
 public class ProjectController {
 
 

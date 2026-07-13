@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.project.model.Project;
-import kg.core.task.enums.Priority;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
