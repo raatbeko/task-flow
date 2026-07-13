@@ -1,6 +1,7 @@
 package kg.core.boardColumn.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.core.board.mapper.BoardMapper;
 import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
         name = "Board Columns",
         description = "Управление колонками внутри досок"
 )
+@SecurityRequirement(name = "bearer-jwt")
 public class BoardColumnController {
 
     BoardColumnService boardColumnService;
@@ -42,12 +44,20 @@ public class BoardColumnController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Обновить колонку",
+            description = "Возвращяет информацию о колонке"
+    )
     public BoardColumnResponse update(@PathVariable Long id, @Valid @RequestBody BoardColumnUpdateRequest boardColumnUpdateRequest) {
         return boardColumnMapper.toResponse(boardColumnService.update(id, boardColumnUpdateRequest));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "Удалить доску",
+            description = "Удалить доску по ID"
+    )
     public void delete(@PathVariable Long id) {
         boardColumnService.delete(id);
     }
