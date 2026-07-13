@@ -34,13 +34,13 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     @Override
     @Transactional
-    public Board create(BoardCreateRequest boardCreateRequest) {
-        Project project = projectRepository.findById(boardCreateRequest.projectId())
+    public Board create(BoardCreateRequest request) {
+        Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
 
         int nextPosition = boardRepository.countByProjectId(project.getId());
 
-        Board board = boardMapper.toEntity(boardCreateRequest);
+        Board board = boardMapper.toEntity(request);
         board.setProject(project);
         board.setStatus(BoardStatus.ACTIVE);
         board.setPosition(nextPosition);
@@ -50,10 +50,10 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     @Override
     @Transactional
-    public Board update(Long id, BoardUpdateRequest boardUpdateRequest) {
+    public Board update(Long id, BoardUpdateRequest request) {
         Board board = find(id);
-        boardMapper.update(boardUpdateRequest, board);
-        return boardRepository.save(board);
+        boardMapper.update(request, board);
+        return board;
     }
 
     @Override
@@ -68,7 +68,6 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     public void archive(Long id) {
         Board board = get(id);
         board.setStatus(BoardStatus.ARCHIVED);
-        boardRepository.save(board);
     }
 
     @Override

@@ -39,27 +39,27 @@ public class BoardColumnController {
             summary = "Создать колонку",
             description = "Управление колонками доски"
     )
-    public BoardColumnResponse create(@Valid @RequestBody BoardColumnCreateRequest boardColumnCreateRequest) {
-        return boardColumnMapper.toResponse(boardColumnService.create(boardColumnCreateRequest));
+    public BoardColumnResponse create(@Valid @RequestBody BoardColumnCreateRequest request) {
+        return boardColumnMapper.toResponse(boardColumnService.create(request));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{columnId}")
     @Operation(
             summary = "Обновить колонку",
             description = "Возвращяет информацию о колонке"
     )
-    public BoardColumnResponse update(@PathVariable Long id, @Valid @RequestBody BoardColumnUpdateRequest boardColumnUpdateRequest) {
-        return boardColumnMapper.toResponse(boardColumnService.update(id, boardColumnUpdateRequest));
+    public BoardColumnResponse update(@PathVariable Long columnId, @Valid @RequestBody BoardColumnUpdateRequest request) {
+        return boardColumnMapper.toResponse(boardColumnService.update(columnId, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{columnId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
             summary = "Удалить доску",
             description = "Удалить доску по ID"
     )
-    public void delete(@PathVariable Long id) {
-        boardColumnService.delete(id);
+    public void delete(@PathVariable Long columnId) {
+        boardColumnService.delete(columnId);
     }
 
 }

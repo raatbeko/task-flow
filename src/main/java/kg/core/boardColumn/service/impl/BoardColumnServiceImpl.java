@@ -34,38 +34,37 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     @Override
     @Transactional
-    public BoardColumn create(BoardColumnCreateRequest boardColumnCreateRequest) {
-        Board board = boardRepository.findById(boardColumnCreateRequest.boardId())
+    public BoardColumn create(BoardColumnCreateRequest request) {
+        Board board = boardRepository.findById(request.boardId())
                 .orElseThrow(() -> new EntityNotFoundException("Доска не найдена"));
 
         int nextPosition = boardColumnRepository.countByBoardId(board.getId());
 
-        BoardColumn boardColumn = boardColumnMapper.toEntity(boardColumnCreateRequest);
-        boardColumn.setBoard(board);
-        boardColumn.setPosition(nextPosition);
+        BoardColumn column = boardColumnMapper.toEntity(request);
+        column.setBoard(board);
+        column.setPosition(nextPosition);
 
-        return boardColumnRepository.save(boardColumn);
+        return boardColumnRepository.save(column);
     }
 
     @Override
     @Transactional
-    public BoardColumn update(Long id, BoardColumnUpdateRequest boardColumnUpdateRequest) {
-        BoardColumn boardColumn = find(id);
-        boardColumnMapper.update(boardColumnUpdateRequest, boardColumn);
-        return boardColumnRepository.save(boardColumn);
-
+    public BoardColumn update(Long id, BoardColumnUpdateRequest request) {
+        BoardColumn column = find(id);
+        boardColumnMapper.update(request, column);
+        return column;
     }
 
     @Override
     @Transactional
-    public BoardColumn updatePosition(BoardColumnPositionRequest boardColumnPositionRequest) {
+    public BoardColumn updatePosition(BoardColumnPositionRequest request) {
         return null;
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        BoardColumn boardColumn = find(id);
-        boardColumnRepository.delete(boardColumn);
+        BoardColumn column = find(id);
+        boardColumnRepository.delete(column);
     }
 }

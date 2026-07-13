@@ -17,8 +17,8 @@ public interface BoardMapper {
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "position", ignore = true)
-    Board toEntity(BoardCreateRequest boardCreateRequest);
+    Board toEntity(BoardCreateRequest request);
 
     @Mapping(target = "project", ignore = true)
-    Board update(BoardUpdateRequest boardUpdateRequest, @MappingTarget Board board);
+    Board update(BoardUpdateRequest request, @MappingTarget Board board);
 }
