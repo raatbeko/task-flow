@@ -62,6 +62,6 @@ public class Task extends AuditableEntity {
     @JoinTable(
             name = "m2m_task_tag_to_project",
             joinColumns = {@JoinColumn(name = "project_id")},
-            inverseJoinColumns = {@JoinColumn(name = "task_tag_id")})
+            inverseJoinColumns = {@JoinColumn(name = "task_id")})
     private Collection<Project> copiedHistory;
 }

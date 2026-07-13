@@ -77,13 +77,12 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         Board originalBoard = find(id);
         int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
-        Board copyBoard = Board.builder()
-                .project(originalBoard.getProject())
-                .name(originalBoard.getName())
-                .description(originalBoard.getDescription())
-                .status(BoardStatus.ACTIVE)
-                .position(nextPosition)
-                .build();
+        Board copyBoard =  new Board();
+        copyBoard.setProject(originalBoard.getProject());
+        copyBoard.setName(originalBoard.getName());
+        copyBoard.setDescription(originalBoard.getDescription());
+        copyBoard.setPosition(nextPosition);
+        copyBoard.setStatus(BoardStatus.ACTIVE);
 
         return boardRepository.save(copyBoard);
     }

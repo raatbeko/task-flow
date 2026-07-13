@@ -1,8 +1,9 @@
-package kg.core.board.model;
+package kg.core.tag.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
+import kg.core.base.model.BaseEntity;
 import kg.core.project.model.Project;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,12 +15,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "board")
+@Table(name = "tag")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Board extends AuditableEntity {
+public class Tag extends BaseEntity {
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     Project project;
 
@@ -27,15 +28,8 @@ public class Board extends AuditableEntity {
     @Column(name = "name", nullable = false)
     String name;
 
-    @Column(name = "description")
-    String description;
-
     @NotNull
-    @Column(name = "position", nullable = false)
-    Integer position;
+    @Column(name = "color", nullable = false)
+    String color;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    BoardStatus status;
 }

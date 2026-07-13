@@ -96,14 +96,11 @@ create table if not exists task
     position          int                             not null
 );
 
-create table if not exists task_assignee
+create table if not exists m2m_user_to_tasks
 (
-    id            bigserial                      primary key,
-    task_id       bigint       not null,
-    user_id       bigint       not null,
-    unique (task_id, user_id),
-    foreign key (task_id) references task(id),
-    foreign key (user_id) references users(id)
+    user_id bigint not null references users(id) on delete cascade,
+    task_id    bigint not null references task(id) on delete cascade,
+    primary key (user_id, task_id)
 );
 
 create table if not exists tag
@@ -114,15 +111,13 @@ create table if not exists tag
     color           varchar(50)                    not null
 );
 
-create table if not exists task_tag
+create table if not exists m2m_task_tag_to_project
 (
-    id              bigserial                      primary key,
-    task_id       bigint       not null,
-    tag_id        bigint       not null,
-    unique (task_id, tag_id),
-    foreign key (task_id) references task(id),
-    foreign key (tag_id) references tag(id)
+    project_id bigint not null references project(id) on delete cascade,
+    task_id    bigint not null references task(id) on delete cascade,
+    primary key (project_id, task_id)
 );
+
 
 create table if not exists comment
 (
@@ -150,3 +145,9 @@ create table if not exists attachments
     storage_key  varchar(1024) not null
     );
 
+create table if not exists m2m_tag_to_project
+(
+    project_id bigint not null references project(id) on delete cascade,
+    tag_id     bigint not null references tag(id) on delete cascade,
+    primary key (project_id, tag_id)
+    );
