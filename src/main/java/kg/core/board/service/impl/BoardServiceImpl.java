@@ -2,9 +2,6 @@ package kg.core.board.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
-import kg.core.board.dtos.BoardCreateRequest;
-import kg.core.board.dtos.BoardUpdateRequest;
-import kg.core.board.mapper.BoardMapper;
 import kg.core.board.model.Board;
 import kg.core.board.model.BoardStatus;
 import kg.core.board.repository.BoardRepository;
@@ -22,25 +19,22 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     BoardRepository boardRepository;
     ProjectRepository projectRepository;
-    BoardMapper boardMapper;
 
-    protected BoardServiceImpl(BoardRepository boardRepository, BoardMapper boardMapper, ProjectRepository projectRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository) {
         super(boardRepository);
         this.boardRepository = boardRepository;
-        this.boardMapper = boardMapper;
         this.projectRepository = projectRepository;
     }
 
 
     @Override
     @Transactional
-    public Board create(BoardCreateRequest request) {
-        Project project = projectRepository.findById(request.projectId())
+    public Board create(Long projectId, Board board) {
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
 
         int nextPosition = boardRepository.countByProjectId(project.getId());
 
-        Board board = boardMapper.toEntity(request);
         board.setProject(project);
         board.setStatus(BoardStatus.ACTIVE);
         board.setPosition(nextPosition);
@@ -50,24 +44,16 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     @Override
     @Transactional
-    public Board update(Long id, BoardUpdateRequest request) {
-        Board board = find(id);
-        boardMapper.update(request, board);
-        return board;
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
+    public void delete(Long id){
         Board board = find(id);
         boardRepository.delete(board);
     }
-
     @Override
     @Transactional
     public void archive(Long id) {
-        Board board = get(id);
+        Board board = find(id);
         board.setStatus(BoardStatus.ARCHIVED);
+        boardRepository.save(board);
     }
 
     @Override

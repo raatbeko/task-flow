@@ -1,18 +1,13 @@
 package kg.core.boardColumn.service;
 
 import kg.core.base.service.CrudService;
-import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
-import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
-import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
 import kg.core.boardColumn.model.BoardColumn;
 
 public interface BoardColumnService extends CrudService<BoardColumn, Long> {
 
-    BoardColumn create(BoardColumnCreateRequest boardCreateRequest);
+    BoardColumn create(Long boardId, BoardColumn BoardColumn);
 
-    BoardColumn update(Long id, BoardColumnUpdateRequest boardColumnUpdateRequest);
-
-    BoardColumn updatePosition(BoardColumnPositionRequest boardColumnPositionRequest);
+    BoardColumn updatePosition(Integer position);
 
     void delete(Long id);
 }
