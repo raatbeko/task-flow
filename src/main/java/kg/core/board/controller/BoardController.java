@@ -7,8 +7,7 @@ import jakarta.validation.Valid;
 import kg.core.board.dtos.BoardCreateRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
-import kg.core.board.mapper.BoardMapper;
-import kg.core.board.service.BoardService;
+import kg.core.board.endpoint.BoardEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearer-jwt")
 public class BoardController {
 
-    BoardService boardService;
-    BoardMapper boardMapper;
+    BoardEndpoint boardEndpoint;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,7 +37,7 @@ public class BoardController {
             description = "Создает новую доску внутри указанного проекта со статусом ACTIVE"
     )
     public BoardResponse create(@Valid @RequestBody BoardCreateRequest request) {
-        return boardMapper.toResponse(boardService.create(request));
+        return boardEndpoint.create(request);
     }
 
     @GetMapping("/{id}")
@@ -48,7 +46,8 @@ public class BoardController {
             description = "Возвращяет информацию о доске"
     )
     public BoardResponse getById(@PathVariable Long id) {
-        return boardMapper.toResponse(boardService.get(id));
+
+        return boardEndpoint.getById(id);
     }
 
     @PutMapping("/{id}")
@@ -57,7 +56,7 @@ public class BoardController {
             description = "Возвращяет информацию о доске"
     )
     public BoardResponse update(@PathVariable Long id, @Valid @RequestBody BoardUpdateRequest request) {
-        return boardMapper.toResponse(boardService.update(id, request));
+        return boardEndpoint.update(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -67,7 +66,8 @@ public class BoardController {
             description = "Удаляет доску по ID"
     )
     public void delete(@PathVariable Long id) {
-        boardService.delete(id);
+
+        boardEndpoint.delete(id);
     }
 
     @PatchMapping("/{id}/archive")
@@ -77,7 +77,8 @@ public class BoardController {
             description = "Меняет статус доски с ACTIVE на ARCHIVE"
     )
     public void archive(@PathVariable Long id) {
-        boardService.archive(id);
+
+        boardEndpoint.archive(id);
     }
 
     @PostMapping("/{id}/duplicate")
@@ -87,7 +88,8 @@ public class BoardController {
             description = "Создает дубликат доски с припиской (клон)"
     )
     public BoardResponse duplicate(@PathVariable Long id) {
-        return boardMapper.toResponse(boardService.duplicate(id));
+
+        return boardEndpoint.duplicate(id);
     }
 }
 

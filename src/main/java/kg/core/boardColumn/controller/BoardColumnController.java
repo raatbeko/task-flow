@@ -3,15 +3,13 @@ package kg.core.boardColumn.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kg.core.board.mapper.BoardMapper;
+import jakarta.validation.Valid;
 import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
 import kg.core.boardColumn.dtos.BoardColumnResponse;
 import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
-import kg.core.boardColumn.mapper.BoardColumnMapper;
-import kg.core.boardColumn.service.BoardColumnService;
+import kg.core.boardColumn.endpoint.BoardColumnEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
@@ -30,8 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearer-jwt")
 public class BoardColumnController {
 
-    BoardColumnService boardColumnService;
-    BoardColumnMapper boardColumnMapper;
+    BoardColumnEndpoint endpoint;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,26 +37,35 @@ public class BoardColumnController {
             description = "Управление колонками доски"
     )
     public BoardColumnResponse create(@Valid @RequestBody BoardColumnCreateRequest request) {
-        return boardColumnMapper.toResponse(boardColumnService.create(request));
+        return endpoint.create(request);
     }
 
-    @PutMapping("/{columnId}")
+    @PutMapping("/{id}")
     @Operation(
             summary = "Обновить колонку",
             description = "Возвращяет информацию о колонке"
     )
-    public BoardColumnResponse update(@PathVariable Long columnId, @Valid @RequestBody BoardColumnUpdateRequest request) {
-        return boardColumnMapper.toResponse(boardColumnService.update(columnId, request));
+    public BoardColumnResponse update(@PathVariable Long id, @Valid @RequestBody BoardColumnUpdateRequest request) {
+            return endpoint.update(id, request);
     }
 
-    @DeleteMapping("/{columnId}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
-            summary = "Удалить доску",
-            description = "Удалить доску по ID"
+            summary = "Удалить колонку",
+            description = "Удалить колонку по ID"
     )
-    public void delete(@PathVariable Long columnId) {
-        boardColumnService.delete(columnId);
+    public void delete(@PathVariable Long id) {
+        endpoint.delete(id);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Получить по колонку по ID",
+            description = "Возвращяет информацию о колонке"
+    )
+    public BoardColumnResponse getById(@PathVariable Long id) {
+        return endpoint.getById(id);
     }
 
 }
