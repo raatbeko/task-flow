@@ -55,19 +55,6 @@ create table if not exists board
     position         int                             not null
 );
 
-create table if not exists board_member
-(
-    id          bigserial                      primary key,
-    created_at  timestamp                      not null default now(),
-    updated_at  timestamp                      not null default now(),
-    created_by  bigint references users(id)    not null,
-    updated_by  bigint references users(id),
-    board_id    bigint references board(id)    not null,
-    user_id     bigint references users(id)    not null,
-    role        varchar(50)                    not null,
-    unique(board_id, user_id)
-);
-
 create table if not exists board_column
 (
     id               bigserial                       primary key,
@@ -150,4 +137,17 @@ create table if not exists m2m_tag_to_project
     project_id bigint not null references project(id) on delete cascade,
     tag_id     bigint not null references tag(id) on delete cascade,
     primary key (project_id, tag_id)
-    );
+);
+
+create table if not exists board_member
+(
+    id                  bigserial                            primary key,
+    created_at          timestamp                            not null default now(),
+    updated_at          timestamp                            not null default now(),
+    created_by          bigint references users(id)          not null,
+    updated_by          bigint references users(id),
+    board_id            bigint references board(id)          not null,
+    project_member_id   bigint references project_member(id) not null,
+    role                varchar(50)                          not null,
+    unique(board_id, project_member_id)
+);

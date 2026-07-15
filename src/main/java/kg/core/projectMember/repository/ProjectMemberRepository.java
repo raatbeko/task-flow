@@ -2,7 +2,6 @@ package kg.core.projectMember.repository;
 
 import kg.core.base.search.BaseRepository;
 import kg.core.projectMember.model.ProjectMember;
-import kg.core.projectMember.model.Role;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

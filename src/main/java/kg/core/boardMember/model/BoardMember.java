@@ -1,10 +1,10 @@
-package kg.core.projectMember.model;
+package kg.core.boardMember.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
-import kg.core.project.model.Project;
-import kg.core.user.model.User;
+import kg.core.board.model.Board;
+import kg.core.projectMember.model.ProjectMember;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,28 +16,24 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "project_member")
+@Table(name = "board_member")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProjectMember extends AuditableEntity {
+public class BoardMember extends AuditableEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    Project project;
+    @JoinColumn(name = "board_id", nullable = false)
+    Board board;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    @JoinColumn(name = "project_member_id", nullable = false)
+    ProjectMember projectMember;
 
     @NotNull
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    ProjectRole role;
-
-    @NotNull
-    @Column(name = "invitation_status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    InvitationStatus invitationStatus;
+    BoardRole role;
 
 }
+
