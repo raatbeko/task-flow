@@ -5,12 +5,9 @@ import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
-import kg.core.projectMember.dtos.InviteMemberRequest;
-import kg.core.projectMember.dtos.UpdateMemberRoleRequest;
+import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
-import kg.core.projectMember.model.RespondInvitationRequest;
-import kg.core.projectMember.model.Role;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.projectMember.service.ProjectMemberService;
 import kg.core.user.model.User;
@@ -43,61 +40,66 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
 
     @Override
     @Transactional
-    public ProjectMember invite(InviteMemberRequest request) {
-        if (request.email() == null && request.username() == null) {
+    public ProjectMember invite(Long projectId, String email, String username, ProjectRole role) {
+        if (email == null && username == null) {
             throw new IllegalArgumentException("Укадите email или username");
         }
 
-        User user = request.email() != null
-                ? userRepository.findByEmail(request.email()).orElseThrow(() -> new NotFoundException("Пользователь с таким email не найден"))
-                : userRepository.findByUsername(request.username()).orElseThrow(() -> new NotFoundException("Пользователь с таким username не найден"));
+        User user = email != null
+                ? userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Пользователь с таким email не найден"))
+                : userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("Пользователь с таким username не найден"));
 
-        Project project = projectRepository.findById(request.projectId()).orElseThrow(() -> new NotFoundException("Проект не найден"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundException("Проект не найден"));
 
-        if (projectMemberRepository.existsByProjectIdAndUserId(request.projectId(), user.getId())) {
+        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
             throw new IllegalArgumentException("Пользователь уже является участником проекта");
         }
 
-        if (request.role() == Role.OWNER) {
+        if (role == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Нельзя пригласить пользователя с ролью OWNER");
         }
 
         ProjectMember projectMember = new ProjectMember();
         projectMember.setProject(project);
         projectMember.setUser(user);
-        projectMember.setRole(request.role());
+        projectMember.setRole(role);
         projectMember.setInvitationStatus(InvitationStatus.PENDING);
-        return projectMemberRepository.save(projectMember);
+        return save(projectMember);
     }
 
     @Override
     @Transactional
-    public ProjectMember updateRole(Long memberId, UpdateMemberRoleRequest request) {
+    public ProjectMember updateRole(Long memberId, ProjectRole role) {
         ProjectMember member = find(memberId);
 
-        if(member.getRole() == Role.OWNER){
+        if(member.getRole() == ProjectRole.OWNER){
             throw new IllegalArgumentException("Нельзя изменить роль владельца");
         }
 
-        if (request.role() == Role.OWNER) {
+        if (role == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Нельзя назначить роль Owner");
         }
 
-        member.setRole(request.role());
-        return member;
+        member.setRole(role);
+        return save(member);
     }
 
     @Override
     @Transactional
-    public ProjectMember respondToInvitation(Long memberId, RespondInvitationRequest request) {
+    public ProjectMember respondToInvitation(Long memberId, InvitationStatus status) {
         ProjectMember member = find(memberId);
 
         if(member.getInvitationStatus() !=  InvitationStatus.PENDING) {
             throw new IllegalArgumentException("Приглашение уже было обработано");
         }
 
-        member.setInvitationStatus(request.status());
-        return member;
+        if (status == InvitationStatus.DECLINED) {
+            projectMemberRepository.delete(member);
+            return member;
+        }
+
+        member.setInvitationStatus(status);
+        return save(member);
     }
 
     @Override
@@ -105,7 +107,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public void removeMember(Long memberId) {
         ProjectMember member = find(memberId);
 
-        if (member.getRole() == Role.OWNER) {
+        if (member.getRole() == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Нельзя удалить пользователя с ролью Owner");
         }
 
@@ -121,7 +123,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("Вы не являетесь участником проекта"));
 
-        if (member.getRole() == Role.OWNER) {
+        if (member.getRole() == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Вы не можете покинуть проект, т.к являетесь владельцем");
         }
 

@@ -13,4 +13,5 @@ public interface CrudService<T, ID> {
     List<T> findAll();
 
     List<T> getByIds(ID[] ids);
+
 }
