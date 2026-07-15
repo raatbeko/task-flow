@@ -2,18 +2,41 @@ package kg.core.project.mapper;
 
 import kg.core.project.dtos.ProjectDto;
 import kg.core.project.model.Project;
+import kg.core.project.model.ProjectStatus;
+import kg.core.utils.UserProvider;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public interface ProjectMapper {
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
+public abstract class ProjectMapper {
 
-    ProjectDto toDto(Project entity);
+    @Autowired
+    protected UserProvider userProvider;
 
-    Project toEntity(ProjectDto dto);
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    public abstract Project toEntity(ProjectDto dto);
 
-    Project update(ProjectDto dto, Project entity);
+    @AfterMapping
+    protected void setOwnerAndStatus(@MappingTarget Project project) {
+        if (project.getId() == null) {
+            project.setOwner(userProvider.getCurrentUser());
+            project.setStatus(ProjectStatus.ACTIVE);
+        }
+    }
 
-    List<ProjectDto> toDtos(List<Project> entities);
+    public abstract ProjectDto toDto(Project entity);
 
-    List<Project> toEntities(List<ProjectDto> dtos);
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    public abstract Project update(ProjectDto dto, @MappingTarget Project entity);
+
+    public abstract List<ProjectDto> toDtos(List<Project> entities);
+
+    public abstract List<Project> toEntities(List<ProjectDto> dtos);
 }

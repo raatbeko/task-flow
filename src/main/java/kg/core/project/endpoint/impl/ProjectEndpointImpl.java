@@ -52,6 +52,11 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
+    public void unarchive(Long id) {
+        service.unarchive(id);
+    }
+
+    @Override
     public void delete(Long id) {
         service.delete(id);
     }
