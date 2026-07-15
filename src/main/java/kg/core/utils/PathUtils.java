@@ -19,6 +19,8 @@ public final class PathUtils {
     public static final String BOARDS = V1 + "/boards";
 
     public static final String PROJECT_MEMBER = V1 + "/project-members";
+
+    public static final String TASK = V1 + "/task";
     public static final String BOARD_MEMBER = V1 + "/board-members";
 }
 

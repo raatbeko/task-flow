@@ -17,6 +17,8 @@ public interface ProjectEndpoint {
 
     void archive(Long id);
 
+    void unarchive(Long id);
+
     void delete(Long id);
 
 }
