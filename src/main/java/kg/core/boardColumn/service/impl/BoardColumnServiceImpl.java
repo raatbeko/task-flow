@@ -37,7 +37,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
         column.setBoard(board);
         column.setPosition(nextPosition);
 
-        return boardColumnRepository.save(column);
+        return save(column);
     }
 
 

@@ -39,7 +39,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         board.setStatus(BoardStatus.ACTIVE);
         board.setPosition(nextPosition);
 
-        return boardRepository.save(board);
+        return save(board);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     public void archive(Long id) {
         Board board = find(id);
         board.setStatus(BoardStatus.ARCHIVED);
-        boardRepository.save(board);
+        save(board);
     }
 
     @Override

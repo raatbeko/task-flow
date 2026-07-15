@@ -1,11 +1,11 @@
 package kg.core.projectMember.dtos;
 
-import kg.core.projectMember.model.Role;
+import kg.core.projectMember.model.ProjectRole;
 
-public record InviteMemberRequest(
+public record InviteProjectMemberRequest(
         String email,
         String username,
         Long projectId,
-        Role role
+        ProjectRole role
 ) {
 }
