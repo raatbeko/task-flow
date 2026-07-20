@@ -84,4 +84,14 @@ public class ProjectController {
     public void archive(@PathVariable Long id) {
         endpoint.archive(id);
     }
+
+    @PatchMapping("/{id}/unarchive")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "Восстановить проект",
+            description = "Меняет статус проект с ARCHIVE на ACTIVE"
+    )
+    public void unarchive(@PathVariable Long id) {
+        endpoint.unarchive(id);
+    }
 }
