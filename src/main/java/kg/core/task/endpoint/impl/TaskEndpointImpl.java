@@ -1,5 +1,6 @@
 package kg.core.task.endpoint.impl;
 
+import kg.core.task.dtos.PurposeTags;
 import kg.core.task.dtos.TaskDto;
 import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.endpoint.TaskEndpoint;
@@ -50,6 +51,12 @@ public class TaskEndpointImpl implements TaskEndpoint {
     @Override
     public UpdatePosition changePosition(Long id, UpdatePosition request) {
         service.updatePosition(id, request);
+        return request;
+    }
+
+    @Override
+    public PurposeTags purposeTags(Long id, PurposeTags request) {
+        service.updatePurpose(id, request);
         return request;
     }
 

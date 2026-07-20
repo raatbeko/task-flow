@@ -1,6 +1,10 @@
 package kg.core.task.service.impl;
 
+import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.tag.model.Tag;
+import kg.core.tag.repository.TagRepository;
+import kg.core.task.dtos.PurposeTags;
 import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
@@ -17,16 +21,28 @@ import java.util.List;
 public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements TaskService {
 
     TaskRepository repository;
+    TagRepository tagRepository;
 
-    public TaskServiceImpl(TaskRepository repository) {
+    public TaskServiceImpl(TaskRepository repository, TagRepository tagRepository) {
         super(repository);
         this.repository = repository;
+        this.tagRepository = tagRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Task> findAllByBoardColumnId(Long boardColumnId) {
         return repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
+    }
+
+    @Override
+    @Transactional
+    public void updatePurpose(Long id, PurposeTags request) {
+        Task task = find(id);
+        Tag tag = tagRepository.findById(request.purpose())
+                .orElseThrow(() -> new NotFoundException("Тег не найден"));
+        task.getTags().add(tag);
+        repository.save(task);
     }
 
     @Override

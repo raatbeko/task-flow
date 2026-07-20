@@ -1,6 +1,7 @@
 package kg.core.task.service;
 
 import kg.core.base.service.CrudService;
+import kg.core.task.dtos.PurposeTags;
 import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.model.Task;
 
@@ -13,4 +14,6 @@ public interface TaskService extends CrudService<Task, Long> {
     void updatePosition(Long id, UpdatePosition request);
 
     List<Task> findAllByBoardColumnId(Long boardColumnId);
+
+    void updatePurpose(Long id, PurposeTags request);
 }
