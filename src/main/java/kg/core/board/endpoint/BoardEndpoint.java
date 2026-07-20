@@ -1,8 +1,11 @@
 package kg.core.board.endpoint;
 
+import jakarta.validation.Valid;
 import kg.core.board.dtos.BoardCreateRequest;
+import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
+import kg.core.task.dtos.UpdatePosition;
 
 public interface BoardEndpoint {
 
@@ -17,5 +20,8 @@ public interface BoardEndpoint {
     void archive(Long id);
 
     BoardResponse duplicate(Long id);
+
+    BoardResponse changePosition(Long id, BoardPositionRequest request);
+
 
 }

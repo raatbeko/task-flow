@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping(PathUtils.PROJECT_MEMBER)
+@RequestMapping(PathUtils.BOARD_MEMBER)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(

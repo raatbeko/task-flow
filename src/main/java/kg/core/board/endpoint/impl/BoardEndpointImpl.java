@@ -1,12 +1,15 @@
 package kg.core.board.endpoint.impl;
 
+import jakarta.validation.Valid;
 import kg.core.board.dtos.BoardCreateRequest;
+import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
 import kg.core.board.endpoint.BoardEndpoint;
 import kg.core.board.mapper.BoardMapper;
 import kg.core.board.model.Board;
 import kg.core.board.service.BoardService;
+import kg.core.task.dtos.UpdatePosition;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -53,5 +56,11 @@ public class BoardEndpointImpl implements BoardEndpoint {
     public BoardResponse duplicate(Long id) {
         Board copiedBoard =  boardService.duplicate(id);
         return boardMapper.toResponse(copiedBoard);
+    }
+
+    @Override
+    public BoardResponse changePosition(Long id, BoardPositionRequest request) {
+        boardService.updatePosition(id, request);
+        return boardMapper.toResponse(boardService.find(id));
     }
 }

@@ -1,6 +1,7 @@
 package kg.core.board.service;
 
 import kg.core.base.service.CrudService;
+import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.model.Board;
 
 
@@ -13,4 +14,6 @@ public interface BoardService extends CrudService<Board, Long> {
     Board duplicate (Long id);
 
     void delete (Long id);
+
+    void updatePosition(Long id, BoardPositionRequest request);
 }

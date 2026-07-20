@@ -2,6 +2,7 @@ package kg.core.boardColumn.endpoint.impl;
 
 
 import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
+import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.dtos.BoardColumnResponse;
 import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
 import kg.core.boardColumn.endpoint.BoardColumnEndpoint;
@@ -43,5 +44,11 @@ public class BoardColumnEndpointImpl implements BoardColumnEndpoint {
     public BoardColumnResponse getById(Long id) {
         BoardColumn column = boardColumnService.find(id);
         return boardColumnMapper.toResponse(column);
+    }
+
+    @Override
+    public BoardColumnResponse changePosition(Long id, BoardColumnPositionRequest request){
+        boardColumnService.updatePosition(id, request);
+        return boardColumnMapper.toResponse(boardColumnService.find(id));
     }
 }

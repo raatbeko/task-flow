@@ -38,9 +38,4 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     Comment parent;
 
-
-
-
-
-
 }

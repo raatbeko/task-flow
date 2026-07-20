@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kg.core.board.dtos.BoardResponse;
 import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
+import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.dtos.BoardColumnResponse;
 import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
 import kg.core.boardColumn.endpoint.BoardColumnEndpoint;
+import kg.core.task.dtos.UpdatePosition;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping(PathUtils.BOARDS)
+@RequestMapping(PathUtils.BOARD_COLUMN)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
@@ -66,6 +69,15 @@ public class BoardColumnController {
     )
     public BoardColumnResponse getById(@PathVariable Long id) {
         return endpoint.getById(id);
+    }
+
+    @PatchMapping("/{id}/change-position")
+    @Operation(
+            summary = "Поменять позицию",
+            description = "Меняет позицию колонки"
+    )
+    public BoardColumnResponse changePosition(@PathVariable Long id, @Valid @RequestBody BoardColumnPositionRequest request) {
+        return endpoint.changePosition(id, request);
     }
 
 }

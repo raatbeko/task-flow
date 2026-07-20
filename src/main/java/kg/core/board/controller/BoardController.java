@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.core.board.dtos.BoardCreateRequest;
+import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
 import kg.core.board.endpoint.BoardEndpoint;
+import kg.core.task.dtos.UpdatePosition;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping(PathUtils.BOARD_COLUMN)
+@RequestMapping(PathUtils.BOARDS)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearer-jwt")
 public class BoardController {
 
-    BoardEndpoint boardEndpoint;
+    BoardEndpoint endpoint;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,7 +39,7 @@ public class BoardController {
             description = "Создает новую доску внутри указанного проекта со статусом ACTIVE"
     )
     public BoardResponse create(@Valid @RequestBody BoardCreateRequest request) {
-        return boardEndpoint.create(request);
+        return endpoint.create(request);
     }
 
     @GetMapping("/{id}")
@@ -47,7 +49,7 @@ public class BoardController {
     )
     public BoardResponse getById(@PathVariable Long id) {
 
-        return boardEndpoint.getById(id);
+        return endpoint.getById(id);
     }
 
     @PutMapping("/{id}")
@@ -56,7 +58,7 @@ public class BoardController {
             description = "Возвращяет информацию о доске"
     )
     public BoardResponse update(@PathVariable Long id, @Valid @RequestBody BoardUpdateRequest request) {
-        return boardEndpoint.update(id, request);
+        return endpoint.update(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -67,7 +69,7 @@ public class BoardController {
     )
     public void delete(@PathVariable Long id) {
 
-        boardEndpoint.delete(id);
+        endpoint.delete(id);
     }
 
     @PatchMapping("/{id}/archive")
@@ -78,7 +80,7 @@ public class BoardController {
     )
     public void archive(@PathVariable Long id) {
 
-        boardEndpoint.archive(id);
+        endpoint.archive(id);
     }
 
     @PostMapping("/{id}/duplicate")
@@ -89,7 +91,17 @@ public class BoardController {
     )
     public BoardResponse duplicate(@PathVariable Long id) {
 
-        return boardEndpoint.duplicate(id);
+        return endpoint.duplicate(id);
     }
+
+    @PatchMapping("/{id}/change-position")
+    @Operation(
+            summary = "Поменять позицию",
+            description = "Меняет позицию доски"
+    )
+    public BoardResponse changePosition(@PathVariable Long id, @Valid @RequestBody BoardPositionRequest request) {
+        return endpoint.changePosition(id, request);
+    }
+
 }
 
