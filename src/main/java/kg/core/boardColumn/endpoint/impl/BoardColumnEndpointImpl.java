@@ -2,6 +2,7 @@ package kg.core.boardColumn.endpoint.impl;
 
 
 import kg.core.boardColumn.dtos.BoardColumnCreateRequest;
+import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.dtos.BoardColumnResponse;
 import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
 import kg.core.boardColumn.endpoint.BoardColumnEndpoint;
@@ -12,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,5 +46,16 @@ public class BoardColumnEndpointImpl implements BoardColumnEndpoint {
     public BoardColumnResponse getById(Long id) {
         BoardColumn column = boardColumnService.find(id);
         return boardColumnMapper.toResponse(column);
+    }
+
+    @Override
+    public BoardColumnResponse changePosition(Long id, BoardColumnPositionRequest request){
+        boardColumnService.updatePosition(id, request);
+        return boardColumnMapper.toResponse(boardColumnService.find(id));
+    }
+
+    @Override
+    public List<BoardColumnResponse> findByBoardId(Long boardId) {
+        return boardColumnMapper.toResponse(boardColumnService.findByBoardId(boardId));
     }
 }

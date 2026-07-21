@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping(PathUtils.PROJECT_MEMBER)
+@RequestMapping(PathUtils.BOARD_MEMBER)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
-        name = "Project member",
-        description = "Управление участниками проекта"
+        name = "Board member",
+        description = "Управление участниками доски"
 )
 @SecurityRequirement(name = "bearer-jwt")
 public class BoardMemberController {

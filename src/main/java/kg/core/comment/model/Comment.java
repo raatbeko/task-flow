@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -38,9 +42,12 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     Comment parent;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, nullable = false)
+    LocalDateTime createdAt;
 
-
-
-
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    LocalDateTime updatedAt;
 
 }

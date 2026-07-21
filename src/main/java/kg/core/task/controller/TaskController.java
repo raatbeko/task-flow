@@ -66,7 +66,7 @@ public class TaskController {
         return endpoint.update(id, request);
     }
 
-    @PutMapping("/change-position")
+    @PutMapping("/{id}/change-position")
     @Operation(
             summary = "Поменять позицию",
             description = "Меняет позицию задачи"

@@ -8,11 +8,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface BoardMapper {
 
     @Mapping(target = "projectId", source = "project.id")
     BoardResponse toResponse(Board board);
+
+    List<BoardResponse> toResponse(List<Board> board);
 
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "status", ignore = true)

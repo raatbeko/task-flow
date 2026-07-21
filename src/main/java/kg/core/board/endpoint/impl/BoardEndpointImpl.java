@@ -1,6 +1,7 @@
 package kg.core.board.endpoint.impl;
 
 import kg.core.board.dtos.BoardCreateRequest;
+import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
 import kg.core.board.endpoint.BoardEndpoint;
@@ -11,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,5 +56,16 @@ public class BoardEndpointImpl implements BoardEndpoint {
     public BoardResponse duplicate(Long id) {
         Board copiedBoard =  boardService.duplicate(id);
         return boardMapper.toResponse(copiedBoard);
+    }
+
+    @Override
+    public BoardResponse changePosition(Long id, BoardPositionRequest request) {
+        boardService.updatePosition(id, request);
+        return boardMapper.toResponse(boardService.find(id));
+    }
+
+    @Override
+    public List<BoardResponse> findByProjectId(Long projectId) {
+        return boardMapper.toResponse(boardService.findByProjectId(projectId));
     }
 }

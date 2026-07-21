@@ -49,7 +49,7 @@ public class Task extends AuditableEntity {
 
     @NotNull
     @Column(name = "position", nullable = false)
-    int position;
+    Integer position;
 
     @ManyToMany
     @JoinTable(

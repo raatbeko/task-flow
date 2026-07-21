@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Запрос на обновление колонки")
-public record BoardColumnUpdateRequest(
+public record BoardColumnUpdateRequest (
 
         @NotBlank
-        @Schema(description = "Название колонки") String name
+        @Schema(description = "Имя колонки") String name
 
 ) {
 }
