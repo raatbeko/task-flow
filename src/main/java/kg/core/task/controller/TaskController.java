@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.core.task.dtos.TaskDto;
-import kg.core.task.dtos.UpdatePosition;
+import kg.core.task.dtos.UpdateDto;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -66,12 +66,48 @@ public class TaskController {
         return endpoint.update(id, request);
     }
 
-    @PutMapping("/change-position")
+    @PutMapping("/{id}/change-position")
     @Operation(
             summary = "Поменять позицию",
             description = "Меняет позицию задачи"
     )
-    public UpdatePosition changePosition(@PathVariable Long id, @Valid @RequestBody UpdatePosition request) {
+    public UpdateDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.changePosition(id, request);
+    }
+
+    @PutMapping("/{id}/purpose-tags")
+    @Operation(
+            summary = "Добавить теги задачи",
+            description = "Добавление тегов к задаче"
+    )
+    public UpdateDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.purposeTags(id, request);
+    }
+
+    @PutMapping("/{id}/users")
+    @Operation(
+            summary = "Добавить пользователя к задаче",
+            description = "Назначение пользователя к задаче"
+    )
+    public UpdateDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.purposeUsers(id, request);
+    }
+
+    @PutMapping("/{id}/replace-purpose-tags")
+    @Operation(
+            summary = "Заменить теги задачи",
+            description = "Очищает текущие теги задачи и назначает переданные"
+    )
+    public UpdateDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.replacePurposeTags(id, request);
+    }
+
+    @PutMapping("/{id}/replace-users")
+    @Operation(
+            summary = "Заменить пользователей задачи",
+            description = "Очищает текущих исполнителей задачи и назначает переданных"
+    )
+    public UpdateDto replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.replacePurposeUsers(id, request);
     }
 }
