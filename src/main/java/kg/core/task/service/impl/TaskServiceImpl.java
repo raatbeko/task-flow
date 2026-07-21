@@ -2,13 +2,15 @@ package kg.core.task.service.impl;
 
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
-import kg.core.task.dtos.PurposeTags;
-import kg.core.task.dtos.UpdatePosition;
+import kg.core.task.dtos.UpdateDto;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
 import kg.core.task.service.TaskService;
+import kg.core.user.model.User;
+import kg.core.user.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,16 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     TaskRepository repository;
     TagRepository tagRepository;
+    UserRepository userRepository;
+    ProjectMemberRepository projectMemberRepository;
 
-    public TaskServiceImpl(TaskRepository repository, TagRepository tagRepository) {
+    public TaskServiceImpl(TaskRepository repository, TagRepository tagRepository,
+                           UserRepository userRepository, ProjectMemberRepository projectMemberRepository) {
         super(repository);
         this.repository = repository;
         this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
+        this.projectMemberRepository = projectMemberRepository;
     }
 
     @Override
@@ -37,11 +44,30 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void updatePurpose(Long id, PurposeTags request) {
+    public void updatePurposeTags(Long id, UpdateDto request) {
         Task task = find(id);
-        Tag tag = tagRepository.findById(request.purpose())
-                .orElseThrow(() -> new NotFoundException("Тег не найден"));
-        task.getTags().add(tag);
+        for (Long tagId : request.idTags()) {
+            Tag tag = tagRepository.findById(tagId)
+                    .orElseThrow(() -> new NotFoundException("Тег не найден с id: " + tagId));
+            task.getTags().add(tag);
+        }
+        repository.save(task);
+    }
+
+    @Override
+    @Transactional
+    public void updatePurposeUsers(Long id, UpdateDto request) {
+        Task task = find(id);
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
+        for (Long userId : request.idUsers()) {
+            if (!projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+                throw new NotFoundException("Пользователь не найден в проекте с id: " + userId);
+            }
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("Пользователь не найден с id: " + userId));
+            task.getAssignees().add(user);
+        }
         repository.save(task);
     }
 
@@ -62,7 +88,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void updatePosition(Long id, UpdatePosition request) {
+    public void updatePosition(Long id, UpdateDto request) {
         Task task = get(id);
         Long boardColumnId = task.getBoardColumn().getId();
         int oldPosition = task.getPosition();

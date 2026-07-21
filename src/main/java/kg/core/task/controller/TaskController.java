@@ -3,9 +3,8 @@ package kg.core.task.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.core.task.dtos.PurposeTags;
 import kg.core.task.dtos.TaskDto;
-import kg.core.task.dtos.UpdatePosition;
+import kg.core.task.dtos.UpdateDto;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -72,7 +71,7 @@ public class TaskController {
             summary = "Поменять позицию",
             description = "Меняет позицию задачи"
     )
-    public UpdatePosition changePosition(@PathVariable Long id, @Valid @RequestBody UpdatePosition request) {
+    public UpdateDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.changePosition(id, request);
     }
 
@@ -81,7 +80,16 @@ public class TaskController {
             summary = "Назначить теги задачи",
             description = "Назначение тега к задаче"
     )
-    public PurposeTags purposeTags(@PathVariable Long id, @Valid @RequestBody PurposeTags request) {
+    public UpdateDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.purposeTags(id, request);
+    }
+
+    @PutMapping("/{id}/users")
+    @Operation(
+            summary = "Назначить пользователя к задаче",
+            description = "Назначение пользователя к задаче"
+    )
+    public UpdateDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.purposeUsers(id, request);
     }
 }
