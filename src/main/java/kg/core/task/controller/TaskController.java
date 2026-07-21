@@ -77,8 +77,8 @@ public class TaskController {
 
     @PutMapping("/{id}/purpose-tags")
     @Operation(
-            summary = "Назначить теги задачи",
-            description = "Назначение тега к задаче"
+            summary = "Добавить теги задачи",
+            description = "Добавление тегов к задаче"
     )
     public UpdateDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.purposeTags(id, request);
@@ -86,10 +86,28 @@ public class TaskController {
 
     @PutMapping("/{id}/users")
     @Operation(
-            summary = "Назначить пользователя к задаче",
+            summary = "Добавить пользователя к задаче",
             description = "Назначение пользователя к задаче"
     )
     public UpdateDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.purposeUsers(id, request);
+    }
+
+    @PutMapping("/{id}/replace-purpose-tags")
+    @Operation(
+            summary = "Заменить теги задачи",
+            description = "Очищает текущие теги задачи и назначает переданные"
+    )
+    public UpdateDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.replacePurposeTags(id, request);
+    }
+
+    @PutMapping("/{id}/replace-users")
+    @Operation(
+            summary = "Заменить пользователей задачи",
+            description = "Очищает текущих исполнителей задачи и назначает переданных"
+    )
+    public UpdateDto replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+        return endpoint.replacePurposeUsers(id, request);
     }
 }

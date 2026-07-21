@@ -46,9 +46,16 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void updatePurposeTags(Long id, UpdateDto request) {
         Task task = find(id);
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
         for (Long tagId : request.idTags()) {
             Tag tag = tagRepository.findById(tagId)
                     .orElseThrow(() -> new NotFoundException("Тег не найден с id: " + tagId));
+
+            if (!tag.getProject().getId().equals(projectId)) {
+                throw new NotFoundException("Тег с id: " + tagId + " не принадлежит проекту");
+            }
+
             task.getTags().add(tag);
         }
         repository.save(task);
@@ -69,6 +76,48 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
             task.getAssignees().add(user);
         }
         repository.save(task);
+    }
+
+    @Override
+    @Transactional
+    public void replacePurposeTags(Long id, UpdateDto request) {
+        Task task = find(id);
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
+        task.getTags().clear();
+
+        if (request.idTags() != null) {
+            for (Long tagId : request.idTags()) {
+                Tag tag = tagRepository.findById(tagId)
+                        .orElseThrow(() -> new NotFoundException("Тег не найден с id: " + tagId));
+
+                if (!tag.getProject().getId().equals(projectId)) {
+                    throw new NotFoundException("Тег с id: " + tagId + " не принадлежит проекту");
+                }
+
+                task.getTags().add(tag);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void replacePurposeUsers(Long id, UpdateDto request) {
+        Task task = find(id);
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
+        task.getAssignees().clear();
+
+        if (request.idUsers() != null) {
+            for (Long userId : request.idUsers()) {
+                if (!projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+                    throw new NotFoundException("Пользователь не найден в проекте с id: " + userId);
+                }
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new NotFoundException("Пользователь не найден с id: " + userId));
+                task.getAssignees().add(user);
+            }
+        }
     }
 
     @Override

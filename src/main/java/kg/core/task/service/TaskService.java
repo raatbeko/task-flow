@@ -17,4 +17,8 @@ public interface TaskService extends CrudService<Task, Long> {
     void updatePurposeTags(Long id, UpdateDto request);
 
     void updatePurposeUsers(Long id, UpdateDto request);
+
+    void replacePurposeTags(Long id, UpdateDto request);
+
+    void replacePurposeUsers(Long id, UpdateDto request);
 }

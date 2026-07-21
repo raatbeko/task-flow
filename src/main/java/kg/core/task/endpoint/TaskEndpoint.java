@@ -21,4 +21,8 @@ public interface TaskEndpoint {
     UpdateDto purposeTags(Long id, @Valid UpdateDto request);
 
     UpdateDto purposeUsers(Long id, @Valid UpdateDto request);
+
+    UpdateDto replacePurposeTags(Long id, @Valid UpdateDto request);
+
+    UpdateDto replacePurposeUsers(Long id, @Valid UpdateDto request);
 }

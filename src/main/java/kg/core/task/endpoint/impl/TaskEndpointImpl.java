@@ -65,4 +65,16 @@ public class TaskEndpointImpl implements TaskEndpoint {
         return request;
     }
 
+    @Override
+    public UpdateDto replacePurposeTags(Long id, UpdateDto request) {
+        service.replacePurposeTags(id, request);
+        return request;
+    }
+
+    @Override
+    public UpdateDto replacePurposeUsers(Long id, UpdateDto request) {
+        service.replacePurposeUsers(id, request);
+        return request;
+    }
+
 }
