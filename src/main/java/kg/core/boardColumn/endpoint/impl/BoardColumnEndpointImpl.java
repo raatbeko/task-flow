@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -50,5 +52,10 @@ public class BoardColumnEndpointImpl implements BoardColumnEndpoint {
     public BoardColumnResponse changePosition(Long id, BoardColumnPositionRequest request){
         boardColumnService.updatePosition(id, request);
         return boardColumnMapper.toResponse(boardColumnService.find(id));
+    }
+
+    @Override
+    public List<BoardColumnResponse> findByBoardId(Long boardId) {
+        return boardColumnMapper.toResponse(boardColumnService.findByBoardId(boardId));
     }
 }

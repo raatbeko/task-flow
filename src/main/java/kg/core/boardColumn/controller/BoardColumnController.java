@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequestMapping(PathUtils.BOARD_COLUMN)
@@ -80,4 +82,12 @@ public class BoardColumnController {
         return endpoint.changePosition(id, request);
     }
 
+    @GetMapping("/board/{id}")
+    @Operation(
+            summary = "Получить колонки доски",
+            description = "Возвращяет колонки доски"
+    )
+    public List<BoardColumnResponse> findByBoardId(@PathVariable Long id) {
+        return endpoint.findByBoardId(id);
+    }
 }

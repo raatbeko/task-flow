@@ -18,9 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Validated
 @RestController
-@RequestMapping(PathUtils.BOARDS)
+@RequestMapping(PathUtils.BOARD)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
@@ -33,11 +35,11 @@ public class BoardController {
     BoardEndpoint endpoint;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(
-            summary = "Создать доску",
-            description = "Создает новую доску внутри указанного проекта со статусом ACTIVE"
-    )
+        @ResponseStatus(HttpStatus.CREATED)
+        @Operation(
+                summary = "Создать доску",
+                description = "Создает новую доску внутри указанного проекта со статусом ACTIVE"
+        )
     public BoardResponse create(@Valid @RequestBody BoardCreateRequest request) {
         return endpoint.create(request);
     }
@@ -101,6 +103,15 @@ public class BoardController {
     )
     public BoardResponse changePosition(@PathVariable Long id, @Valid @RequestBody BoardPositionRequest request) {
         return endpoint.changePosition(id, request);
+    }
+
+    @GetMapping("/project/{id}")
+    @Operation(
+            summary = "Получить доски проекта",
+            description = "Возвращяет акивные доски проекта"
+    )
+    public List<BoardResponse> findByProjectId(@PathVariable Long id) {
+        return endpoint.findByProjectId(id);
     }
 
 }

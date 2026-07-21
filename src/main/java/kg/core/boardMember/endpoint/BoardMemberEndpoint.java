@@ -7,6 +7,8 @@ import kg.core.boardMember.dtos.UpdateBoardRoleRequest;
 public interface BoardMemberEndpoint {
 
     BoardMemberResponse invite(InviteBoardMemberRequest inviteBoardMemberRequest);
+
     BoardMemberResponse updateRole(Long id, UpdateBoardRoleRequest updateBoardRoleRequest);
+
     void removeMember(Long id);
 }

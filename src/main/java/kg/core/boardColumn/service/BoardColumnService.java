@@ -5,6 +5,8 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.task.dtos.UpdatePosition;
 
+import java.util.List;
+
 public interface BoardColumnService extends CrudService<BoardColumn, Long> {
 
     BoardColumn create(Long boardId, BoardColumn BoardColumn);
@@ -12,4 +14,6 @@ public interface BoardColumnService extends CrudService<BoardColumn, Long> {
     void updatePosition(Long id, BoardColumnPositionRequest request);
 
     void delete(Long id);
+
+    List<BoardColumn> findByBoardId(Long boardId);
 }

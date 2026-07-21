@@ -8,7 +8,6 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
-import kg.core.task.model.Task;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -78,4 +77,10 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
         BoardColumn boardColumn = find(id);
         delete(boardColumn.getId());
     }
+
+    @Override
+    public List<BoardColumn> findByBoardId(Long boardId) {
+        return boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+    }
 }
+

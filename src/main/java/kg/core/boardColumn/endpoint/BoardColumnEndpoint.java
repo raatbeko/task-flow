@@ -5,6 +5,8 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.dtos.BoardColumnResponse;
 import kg.core.boardColumn.dtos.BoardColumnUpdateRequest;
 
+import java.util.List;
+
 public interface BoardColumnEndpoint {
 
     BoardColumnResponse create(BoardColumnCreateRequest request);
@@ -17,4 +19,5 @@ public interface BoardColumnEndpoint {
 
     BoardColumnResponse changePosition(Long id, BoardColumnPositionRequest request);
 
+    List<BoardColumnResponse> findByBoardId(Long boardId);
 }

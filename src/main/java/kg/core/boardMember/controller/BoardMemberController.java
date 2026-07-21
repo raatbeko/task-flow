@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(
-        name = "Project member",
-        description = "Управление участниками проекта"
+        name = "Board member",
+        description = "Управление участниками доски"
 )
 @SecurityRequirement(name = "bearer-jwt")
 public class BoardMemberController {

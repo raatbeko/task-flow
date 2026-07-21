@@ -8,11 +8,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface BoardColumnMapper {
 
     @Mapping(target = "boardId", source = "board.id")
     BoardColumnResponse toResponse(BoardColumn column);
+
+    List<BoardColumnResponse> toResponse(List<BoardColumn> columns);
 
     @Mapping(target = "board", ignore = true)
     @Mapping(target = "position", ignore = true)

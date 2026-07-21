@@ -83,6 +83,11 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     }
 
     @Override
+    public List<Board> findByProjectId(Long id) {
+        return boardRepository.findByProjectIdOrderByPositionAsc(id);
+    }
+
+    @Override
     @Transactional
     public void archive(Long id) {
         Board board = find(id);

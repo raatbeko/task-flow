@@ -7,6 +7,8 @@ import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
 import kg.core.task.dtos.UpdatePosition;
 
+import java.util.List;
+
 public interface BoardEndpoint {
 
     BoardResponse create(BoardCreateRequest request);
@@ -22,6 +24,8 @@ public interface BoardEndpoint {
     BoardResponse duplicate(Long id);
 
     BoardResponse changePosition(Long id, BoardPositionRequest request);
+
+    List<BoardResponse> findByProjectId(Long id);
 
 
 }
