@@ -14,9 +14,9 @@ spring:
     active: minio
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/core
+    url: jdbc:postgresql://localhost:5433/postgres
     username: postgres
-    password: 1234
+    password: adminadmin
     driver-class-name: org.postgresql.Driver
 
   jpa:

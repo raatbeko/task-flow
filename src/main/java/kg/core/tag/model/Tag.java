@@ -2,7 +2,6 @@ package kg.core.tag.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import kg.core.base.model.AuditableEntity;
 import kg.core.base.model.BaseEntity;
 import kg.core.project.model.Project;
 import lombok.AccessLevel;

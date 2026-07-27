@@ -42,8 +42,6 @@ public abstract class TaskMapper {
     @Mapping(target = "assignees", source = "assignees", qualifiedByName = "assigneeIdToUsers")
     @Mapping(target = "tags", source = "tags", qualifiedByName = "tagIdsToTags")
     @Mapping(target = "position", ignore = true)
-    @Mapping(target = "usersFavorites", ignore = true)
-    @Mapping(target = "copiedHistory", ignore = true)
     public abstract Task toEntity(TaskDto dto);
 
     @Mapping(target = "boardColumnId", source = "boardColumn.id")
@@ -55,8 +53,6 @@ public abstract class TaskMapper {
     @Mapping(target = "assignees", source = "assignees", qualifiedByName = "assigneeIdToUsers")
     @Mapping(target = "tags", source = "tags", qualifiedByName = "tagIdsToTags")
     @Mapping(target = "position", ignore = true)
-    @Mapping(target = "usersFavorites", ignore = true)
-    @Mapping(target = "copiedHistory", ignore = true)
     public abstract Task update(TaskDto dto, @MappingTarget Task entity);
 
     public abstract List<TaskDto> toDtos(List<Task> entities);
@@ -85,7 +81,7 @@ public abstract class TaskMapper {
     }
 
     @Named("tagIdsToTags")
-    protected Set<Task> tagIdsToTags(Long[] tagIds) {
+    protected Set<Tag> tagIdsToTags(Long[] tagIds) {
         if (tagIds == null || tagIds.length == 0) return new HashSet<>();
         return Arrays.stream(tagIds)
                 .map(id -> tagRepository.findById(id)
