@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.core.task.dtos.TaskDto;
+import kg.core.task.dtos.TaskSearchRequest;
 import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.endpoint.TaskEndpoint;
+import kg.core.task.model.TaskDocument;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,15 @@ import java.util.List;
 public class TaskController {
 
     TaskEndpoint endpoint;
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "Поиск задач",
+            description = "Поиск задач по фильтрам (Elasticsearch)"
+    )
+    public List<TaskDto> search(TaskSearchRequest request) {
+        return endpoint.search(request);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

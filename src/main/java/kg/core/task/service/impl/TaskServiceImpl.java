@@ -2,8 +2,11 @@ package kg.core.task.service.impl;
 
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.task.dtos.UpdatePosition;
+import kg.core.task.model.Priority;
 import kg.core.task.model.Task;
+import kg.core.task.model.TaskDocument;
 import kg.core.task.repository.TaskRepository;
+import kg.core.task.repository.TaskSearchRepository;
 import kg.core.task.service.TaskService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -17,16 +20,28 @@ import java.util.List;
 public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements TaskService {
 
     TaskRepository repository;
+    TaskSearchRepository searchRepository;
 
-    public TaskServiceImpl(TaskRepository repository) {
+    public TaskServiceImpl(TaskRepository repository, TaskSearchRepository taskSearchRepository) {
         super(repository);
         this.repository = repository;
+        this.searchRepository = taskSearchRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Task> findAllByBoardColumnId(Long boardColumnId) {
         return repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
+    }
+
+    @Override
+    public List<TaskDocument> search(String query) {
+        if(query != null || query.isBlank()) {
+            return searchRepository.findByTitleContainingOrDescriptionContaining(query, query);
+        }
+
+        return (List<TaskDocument>) searchRepository.findAll();
+
     }
 
     @Override

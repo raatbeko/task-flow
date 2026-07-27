@@ -2,6 +2,7 @@ package kg.core.task.endpoint;
 
 import jakarta.validation.Valid;
 import kg.core.task.dtos.TaskDto;
+import kg.core.task.dtos.TaskSearchRequest;
 import kg.core.task.dtos.UpdatePosition;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface TaskEndpoint {
     TaskDto update(Long id, TaskDto dto);
 
     UpdatePosition changePosition(Long id, @Valid UpdatePosition request);
+
+    List<TaskDto> search(TaskSearchRequest request);
 }

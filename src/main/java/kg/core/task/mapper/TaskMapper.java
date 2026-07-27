@@ -5,6 +5,7 @@ import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.task.dtos.TaskDto;
 import kg.core.task.model.Task;
+import kg.core.task.model.TaskDocument;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -22,6 +23,10 @@ public abstract class TaskMapper {
 
     @Autowired
     protected BoardColumnRepository boardColumnRepository;
+
+    public abstract TaskDocument toDocument(Task task);
+
+    public abstract List<TaskDto> documentsToDtos(List<TaskDocument> taskDocuments);
 
     @Mapping(target = "boardColumn", source = "boardColumnId", qualifiedByName = "boardColumnIdToBoardColumn")
     @Mapping(target = "position", ignore = true)
