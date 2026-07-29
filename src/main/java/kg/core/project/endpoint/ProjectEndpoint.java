@@ -1,19 +1,22 @@
 package kg.core.project.endpoint;
 
-import kg.core.project.dtos.ProjectDto;
+import kg.core.project.dtos.ProjectResponse;
+import kg.core.project.dtos.projectRequest;
 
 import java.util.List;
 
 
 public interface ProjectEndpoint {
 
-    ProjectDto get(Long id);
+    ProjectResponse create(projectRequest dto);
 
-    List<ProjectDto> getAll();
+    projectRequest get(Long id);
 
-    ProjectDto create(ProjectDto dto);
+    List<projectRequest> getAll();
 
-    ProjectDto update(Long id, ProjectDto dto);
+//    projectRequest create(projectRequest dto);
+
+    projectRequest update(Long id, projectRequest dto);
 
     void archive(Long id);
 
