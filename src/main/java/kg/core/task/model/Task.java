@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import kg.core.base.model.AuditableEntity;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.project.model.Project;
+import kg.core.tag.model.Tag;
 import kg.core.user.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -56,12 +57,12 @@ public class Task extends AuditableEntity {
             name = "m2m_user_to_tasks",
             joinColumns = {@JoinColumn(name = "task_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    private Set<User> usersFavorites = new HashSet<>();
+    private Collection<User> assignees = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "m2m_task_tag_to_project",
-            joinColumns = {@JoinColumn(name = "project_id")},
-            inverseJoinColumns = {@JoinColumn(name = "task_id")})
-    private Collection<Project> copiedHistory;
+            name = "m2m_task_to_tag",
+            joinColumns = {@JoinColumn(name = "task_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
+    private Collection<Tag> tags = new HashSet<>();
 }

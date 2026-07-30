@@ -7,6 +7,10 @@ import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
 import kg.core.project.repository.ProjectRepository;
 import kg.core.project.service.ProjectService;
+import kg.core.projectMember.model.InvitationStatus;
+import kg.core.projectMember.model.ProjectMember;
+import kg.core.projectMember.model.ProjectRole;
+import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
@@ -22,11 +26,13 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
 
     ProjectRepository repository;
     UserProvider userProvider;
+    ProjectMemberRepository projectMemberRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider) {
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository ) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
+        this.projectMemberRepository = projectMemberRepository;
     }
 
     @Override
@@ -49,6 +55,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Project project = get(id);
         if (project.getStatus() == ProjectStatus.ACTIVE) {
@@ -72,6 +79,22 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         Project project = get(id);
         project.setStatus(ProjectStatus.ACTIVE);
         repository.save(project);
+    }
+
+    @Override
+    @Transactional
+    public Project create(Project project) {
+
+        Project newProject = save(project);
+
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProject(newProject);
+        projectMember.setUser(userProvider.getCurrentUser());
+        projectMember.setInvitationStatus(InvitationStatus.ACCEPTED);
+        projectMember.setRole(ProjectRole.OWNER);
+        projectMemberRepository.save(projectMember);
+
+        return newProject;
     }
 
 }

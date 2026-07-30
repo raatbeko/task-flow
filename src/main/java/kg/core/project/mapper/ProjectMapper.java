@@ -1,6 +1,7 @@
 package kg.core.project.mapper;
 
-import kg.core.project.dtos.ProjectDto;
+import kg.core.project.dtos.ProjectResponse;
+import kg.core.project.dtos.ProjectRequest;
 import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
 import kg.core.utils.UserProvider;
@@ -20,7 +21,11 @@ public abstract class ProjectMapper {
 
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "status", ignore = true)
-    public abstract Project toEntity(ProjectDto dto);
+    public abstract Project toEntity(ProjectRequest request);
+
+    @Mapping(target = "ownerId", source = "owner.id")
+    public abstract ProjectResponse toResponse(Project entity);
+
 
     @AfterMapping
     protected void setOwnerAndStatus(@MappingTarget Project project) {
@@ -30,13 +35,9 @@ public abstract class ProjectMapper {
         }
     }
 
-    public abstract ProjectDto toDto(Project entity);
-
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "status", ignore = true)
-    public abstract Project update(ProjectDto dto, @MappingTarget Project entity);
+    public abstract Project update(ProjectRequest dto, @MappingTarget Project entity);
 
-    public abstract List<ProjectDto> toDtos(List<Project> entities);
-
-    public abstract List<Project> toEntities(List<ProjectDto> dtos);
+    public abstract List<ProjectResponse> toResponses(List<Project> entities);
 }
