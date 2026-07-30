@@ -3,8 +3,9 @@ package kg.core.project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.core.project.dtos.ProjectResponse;
 import kg.core.project.dtos.ProjectRequest;
+import kg.core.project.dtos.ProjectResponse;
+import kg.core.project.dtos.ProjectSearchRequest;
 import kg.core.project.endpoint.ProjectEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -28,6 +29,15 @@ import java.util.List;
 public class ProjectController {
 
     ProjectEndpoint endpoint;
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "Поиск проектов",
+            description = "Поиск задач по фильтрам (Elasticsearch)"
+    )
+    public List<ProjectResponse> search(ProjectSearchRequest request) {
+        return endpoint.search(request);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

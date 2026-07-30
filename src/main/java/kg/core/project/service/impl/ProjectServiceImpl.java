@@ -4,8 +4,10 @@ import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.project.model.Project;
+import kg.core.project.model.ProjectDocument;
 import kg.core.project.model.ProjectStatus;
 import kg.core.project.repository.ProjectRepository;
+import kg.core.project.repository.ProjectSearchRepository;
 import kg.core.project.service.ProjectService;
 import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
@@ -18,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,12 +30,14 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     ProjectRepository repository;
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
+    ProjectSearchRepository searchRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository ) {
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository, ProjectSearchRepository searchRepository) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
+        this.searchRepository = searchRepository;
     }
 
     @Override
@@ -95,6 +100,19 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         projectMemberRepository.save(projectMember);
 
         return newProject;
+    }
+
+    @Override
+    public List<ProjectDocument> search(String query, ProjectStatus status) {
+        if(query == null || query.isBlank()) {
+            return new ArrayList<>();
+        }
+        if(status != null) {
+            return searchRepository.findByNameContainingOrDescriptionContainingOrOwnerUsernameContainingAndStatus(query, query, query, status);
+        }
+
+        return  searchRepository.findByNameContainingOrDescriptionContainingOrOwnerUsernameContaining(query, query, query);
+
     }
 
 }

@@ -1,8 +1,9 @@
 package kg.core.project.mapper;
 
-import kg.core.project.dtos.ProjectResponse;
 import kg.core.project.dtos.ProjectRequest;
+import kg.core.project.dtos.ProjectResponse;
 import kg.core.project.model.Project;
+import kg.core.project.model.ProjectDocument;
 import kg.core.project.model.ProjectStatus;
 import kg.core.utils.UserProvider;
 import org.mapstruct.*;
@@ -18,6 +19,13 @@ public abstract class ProjectMapper {
 
     @Autowired
     protected UserProvider userProvider;
+
+    @Mapping(target = "ownerUsername", source = "owner.username")
+    public abstract ProjectDocument toDocument(Project project);
+
+    public abstract List<ProjectResponse> documentsToDtos(List<ProjectDocument> projectDocuments);
+
+
 
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "status", ignore = true)

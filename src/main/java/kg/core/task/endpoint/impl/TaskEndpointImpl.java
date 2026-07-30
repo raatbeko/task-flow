@@ -52,6 +52,10 @@ public class TaskEndpointImpl implements TaskEndpoint {
     public TaskDto update(Long id, TaskDto dto) {
         Task task = service.find(id);
         service.save(mapper.update(dto, task));
+
+        TaskDocument taskDocument = mapper.toDocument(task);
+        searchRepository.save(taskDocument);
+
         return mapper.toDto(task);
     }
 

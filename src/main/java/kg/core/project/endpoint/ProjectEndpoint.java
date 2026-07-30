@@ -2,6 +2,7 @@ package kg.core.project.endpoint;
 
 import kg.core.project.dtos.ProjectResponse;
 import kg.core.project.dtos.ProjectRequest;
+import kg.core.project.dtos.ProjectSearchRequest;
 
 import java.util.List;
 
@@ -23,5 +24,7 @@ public interface ProjectEndpoint {
     void unarchive(Long id);
 
     void delete(Long id);
+
+    List<ProjectResponse> search(ProjectSearchRequest searchRequest);
 
 }
