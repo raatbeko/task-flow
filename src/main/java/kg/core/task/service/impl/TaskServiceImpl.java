@@ -86,7 +86,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     public void delete(Long id) {
         Task task = get(id);
-            repository.delete(task);
+        repository.delete(task);
     }
 
     @Override
