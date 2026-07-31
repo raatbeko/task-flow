@@ -2,6 +2,9 @@ package kg.core.projectMember.repository;
 
 import kg.core.base.search.BaseRepository;
 import kg.core.projectMember.model.ProjectMember;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +18,9 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
     Optional<ProjectMember> findByProjectIdAndUserId(Long projectId, Long userId);
 
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
+
+    @Modifying
+    @Query("delete from ProjectMember pm where pm.project.id = :projectId")
+    void deleteByProjectId(@Param("projectId") Long projectId);
 
 }
