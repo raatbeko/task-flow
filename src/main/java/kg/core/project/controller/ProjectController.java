@@ -54,7 +54,6 @@ public class ProjectController {
             description = "Возвращяет все проекты"
     )
     public List<ProjectResponse> getAll() {
-
         return endpoint.getAll();
     }
 

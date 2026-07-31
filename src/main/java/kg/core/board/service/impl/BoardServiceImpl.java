@@ -51,28 +51,35 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public void delete(Long id){
         Board board = find(id);
+        Long projectId = board.getProject().getId();
         boardRepository.delete(board);
+
+        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(projectId);
+
+        for (int i = 0; i < boards.size(); i++) {
+            boards.get(i).setPosition(i);
+        }
+
+        boardRepository.saveAll(boards);
     }
 
     @Override
     @Transactional
     public void updatePosition(Long id, BoardPositionRequest request) {
         Board board = find(id);
-        Long projectId = board.getProject().getId();
         int oldPosition = board.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
 
         if (newPosition == oldPosition) return;
 
-        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(projectId);
+        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(board.getProject().getId());
 
-        int maxPosition = boards.size() - 1;
-        if (newPosition < 0 || newPosition > maxPosition) {
-            newPosition = maxPosition;
+        boards.removeIf(b -> b.getId().equals(board.getId()));
+
+        if (newPosition < 0 || newPosition > boards.size()) {
+            newPosition = boards.size();
         }
-        if (newPosition == oldPosition) return;
 
-        boards.remove((int) oldPosition);
         boards.add(newPosition, board);
 
         for (int i = 0; i < boards.size(); i++) {

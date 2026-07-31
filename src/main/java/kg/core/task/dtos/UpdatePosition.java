@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO для изменения позиции задачи")
 public record UpdatePosition(
-        @Schema(description = "Позиция задачи") Integer position
+        @Schema(description = "Позиция задачи") Long newPosition,
+        @Schema(description = "Позиция задачи") Long columnId
 ) {
 }

@@ -2,10 +2,13 @@ package kg.core.task.service.impl;
 
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.boardColumn.model.BoardColumn;
+import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
 import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
 import kg.core.task.service.TaskService;
@@ -26,14 +29,17 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     TagRepository tagRepository;
     UserRepository userRepository;
     ProjectMemberRepository projectMemberRepository;
+    BoardColumnRepository boardColumnRepository;
 
     public TaskServiceImpl(TaskRepository repository, TagRepository tagRepository,
-                           UserRepository userRepository, ProjectMemberRepository projectMemberRepository) {
+                           UserRepository userRepository, ProjectMemberRepository projectMemberRepository,
+                           BoardColumnRepository boardColumnRepository) {
         super(repository);
         this.repository = repository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.projectMemberRepository = projectMemberRepository;
+        this.boardColumnRepository = boardColumnRepository;
     }
 
     @Override
@@ -84,37 +90,77 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Task task = find(id);
-        repository.delete(task);
-    }
-
-    @Override
-    @Transactional
-    public void updatePosition(Long id, UpdateDto request) {
-        Task task = find(id);
         Long boardColumnId = task.getBoardColumn().getId();
-        int oldPosition = task.getPosition();
-        int newPosition = request.position() != null ? request.position().intValue() : -1;
-
-        if (newPosition == oldPosition) return;
+        repository.delete(task);
 
         List<Task> columnTasks = repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
-
-        int maxPosition = columnTasks.size() - 1;
-        if (newPosition < 0 || newPosition > maxPosition) {
-            newPosition = maxPosition;
-        }
-        if (newPosition == oldPosition) return;
-
-        columnTasks.remove((int) oldPosition);
-        columnTasks.add(newPosition, task);
 
         for (int i = 0; i < columnTasks.size(); i++) {
             columnTasks.get(i).setPosition(i);
         }
 
         repository.saveAll(columnTasks);
+    }
+
+    @Override
+    @Transactional
+    public void updatePosition(Long id, UpdateDto request) {
+        Task task = find(id);
+        int oldPosition = task.getPosition();
+        int newPosition = request.position() != null ? request.position().intValue() : -1;
+
+        if (newPosition == oldPosition) return;
+
+        List<Task> columnTasks = repository.findByBoardColumnIdOrderByPositionAsc(task.getBoardColumn().getId());
+        columnTasks.removeIf(t -> t.getId().equals(task.getId()));
+
+        insertAndRenumber(columnTasks, task, newPosition);
+    }
+
+    @Override
+    @Transactional
+    public void moveTask(Long id, UpdatePosition request) {
+        Task task = find(id);
+        Long oldColumnId = task.getBoardColumn().getId();
+        int newPosition = request.newPosition() != null ? request.newPosition().intValue() : -1;
+
+        List<Task> oldColumnTasks = repository.findByBoardColumnIdOrderByPositionAsc(oldColumnId);
+        oldColumnTasks.removeIf(t -> t.getId().equals(task.getId()));
+
+        boolean crossColumn = request.columnId() != null && !request.columnId().equals(oldColumnId);
+
+        if (crossColumn) {
+            BoardColumn column = boardColumnRepository.findById(request.columnId())
+                    .orElseThrow(() -> new NotFoundException("Колонка с id: " + request.columnId() + " не найдена!"));
+            renumberAndSave(oldColumnTasks);
+            task.setBoardColumn(column);
+        }
+
+        List<Task> columnTasks = crossColumn
+                ? repository.findByBoardColumnIdOrderByPositionAsc(request.columnId())
+                : oldColumnTasks;
+
+        insertAndRenumber(columnTasks, task, newPosition);
+    }
+
+    private void insertAndRenumber(List<Task> tasks, Task task, int position) {
+        if (position < 0 || position > tasks.size()) {
+            position = tasks.size();
+        }
+
+        tasks.add(position, task);
+        renumberAndSave(tasks);
+    }
+
+    private void renumberAndSave(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            tasks.get(i).setPosition(i);
+        }
+
+        repository.saveAll(tasks);
     }
 
     private void addTagsToTask(Task task, Long projectId, Long[] tagIds) {

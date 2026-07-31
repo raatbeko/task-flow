@@ -3,6 +3,7 @@ package kg.core.task.endpoint;
 import jakarta.validation.Valid;
 import kg.core.task.dtos.TaskDto;
 import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.UpdatePosition;
 
 import java.util.List;
 
@@ -25,4 +26,8 @@ public interface TaskEndpoint {
     UpdateDto replacePurposeTags(Long id, @Valid UpdateDto request);
 
     UpdateDto replacePurposeUsers(Long id, @Valid UpdateDto request);
+
+    void delete(Long id);
+
+    UpdateDto move(Long id, @Valid UpdatePosition request);
 }
