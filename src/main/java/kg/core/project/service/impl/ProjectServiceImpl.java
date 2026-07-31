@@ -50,7 +50,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
 
     @Override
     public void delete(Long id) {
-        Project project = get(id);
+        Project project = find(id);
         if (project.getStatus() == ProjectStatus.ACTIVE) {
             repository.delete(project);
         } else {
@@ -61,7 +61,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void archive(Long id) {
-        Project project = get(id);
+        Project project = find(id);
         project.setStatus(ProjectStatus.ARCHIVED);
         repository.save(project);
     }
@@ -69,7 +69,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void unarchive(Long id) {
-        Project project = get(id);
+        Project project = find(id);
         project.setStatus(ProjectStatus.ACTIVE);
         repository.save(project);
     }
