@@ -3,7 +3,8 @@ package kg.core.project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.core.project.dtos.ProjectDto;
+import kg.core.project.dtos.ProjectResponse;
+import kg.core.project.dtos.projectRequest;
 import kg.core.project.endpoint.ProjectEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -34,7 +35,7 @@ public class ProjectController {
             summary = "Создать проект",
             description = "Создает новый проект со статусом ACTIVE"
     )
-    public ProjectDto create(@Valid @RequestBody ProjectDto request) {
+    public ProjectResponse create(@Valid @RequestBody projectRequest request) {
         return endpoint.create(request);
     }
 
@@ -43,7 +44,7 @@ public class ProjectController {
             summary = "Получить проект по ID",
             description = "Возвращяет информацию о проекте"
     )
-    public ProjectDto getById(@PathVariable Long id) {
+    public projectRequest getById(@PathVariable Long id) {
         return endpoint.get(id);
     }
 
@@ -52,7 +53,7 @@ public class ProjectController {
             summary = "Получить все проекты",
             description = "Возвращяет все проекты"
     )
-    public List<ProjectDto> getAll() {
+    public List<projectRequest> getAll() {
         return endpoint.getAll();
     }
 
@@ -61,7 +62,7 @@ public class ProjectController {
             summary = "Обнововить проект",
             description = "Возвращяет информацию о проекте"
     )
-    public ProjectDto update(@PathVariable Long id, @Valid @RequestBody ProjectDto request) {
+    public projectRequest update(@PathVariable Long id, @Valid @RequestBody projectRequest request) {
         return endpoint.update(id, request);
     }
 
