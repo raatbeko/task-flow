@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/api/auth/oauth2/success", true)
+                        .defaultSuccessUrl("/api/v1/project", true)
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint)
