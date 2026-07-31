@@ -85,14 +85,14 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     public void delete(Long id) {
-        Task task = get(id);
+        Task task = find(id);
         repository.delete(task);
     }
 
     @Override
     @Transactional
     public void updatePosition(Long id, UpdateDto request) {
-        Task task = get(id);
+        Task task = find(id);
         Long boardColumnId = task.getBoardColumn().getId();
         int oldPosition = task.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
