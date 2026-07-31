@@ -103,7 +103,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void archive(Long id) {
-        Project project = get(id);
+        Project project = find(id);
         project.setStatus(ProjectStatus.ARCHIVED);
         repository.save(project);
     }
@@ -111,9 +111,25 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void unarchive(Long id) {
-        Project project = get(id);
+        Project project = find(id);
         project.setStatus(ProjectStatus.ACTIVE);
         repository.save(project);
+    }
+
+    @Override
+    @Transactional
+    public Project create(Project project) {
+
+        Project newProject = save(project);
+
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProject(newProject);
+        projectMember.setUser(userProvider.getCurrentUser());
+        projectMember.setInvitationStatus(InvitationStatus.ACCEPTED);
+        projectMember.setRole(ProjectRole.OWNER);
+        projectMemberRepository.save(projectMember);
+
+        return newProject;
     }
 
 }

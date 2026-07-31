@@ -1,6 +1,6 @@
 package kg.core.project.endpoint.impl;
 
-import kg.core.project.dtos.projectRequest;
+import kg.core.project.dtos.ProjectRequest;
 import kg.core.project.dtos.ProjectResponse;
 import kg.core.project.endpoint.ProjectEndpoint;
 import kg.core.project.mapper.ProjectMapper;
@@ -22,29 +22,28 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     ProjectMapper mapper;
 
     @Override
-    public projectRequest get(Long id) {
+    public ProjectResponse get(Long id) {
         Project response =  service.find(id);
-        return mapper.toDto(response);
+        return mapper.toResponse(response);
     }
 
     @Override
-    public List<projectRequest> getAll() {
-        List<Project> response =  service.findAll();
-        return mapper.toDtos(response);
+    public List<ProjectResponse> getAll() {
+        List<Project> response = service.findAll();
+        return mapper.toResponses(response);
     }
 
     @Override
-    public ProjectResponse create(projectRequest dto) {
-        Project project = mapper.toEntity(dto);
-        Project saved = service.save(project);
-        return mapper.toResponse(saved);
+    public ProjectResponse create(ProjectRequest request) {
+        Project project = mapper.toEntity(request);
+        return mapper.toResponse(service.create(project));
     }
 
     @Override
-    public projectRequest update(Long id, projectRequest dto) {
+    public ProjectResponse update(Long id, ProjectRequest request) {
         Project project = service.find(id);
-        service.save(mapper.update(dto, project));
-        return mapper.toDto(project);
+        service.save(mapper.update(request, project));
+        return mapper.toResponse(project);
     }
 
     @Override

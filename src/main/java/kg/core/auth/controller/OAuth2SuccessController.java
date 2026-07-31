@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping(PathUtils.AUTH_OAUTH_2 + "/oauth2")
+@RequestMapping(PathUtils.AUTH_OAUTH_2)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "OAuth2", description = "Колбэки OAuth2-логина")
