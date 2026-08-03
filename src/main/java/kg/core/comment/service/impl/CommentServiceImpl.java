@@ -1,6 +1,6 @@
 package kg.core.comment.service.impl;
 
-import kg.core.auth.service.impl.DefaultAccountContextProvider;
+import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.comment.model.Comment;
@@ -12,7 +12,6 @@ import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +62,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         User currentUser = userProvider.getCurrentUser();
 
         if(!comment.getAuthor().equals(currentUser)) {
-            throw new AccessDeniedException("Редактировать может только автор");
+            throw new ForbiddenException("Редактировать может только автор");
         }
 
         comment.setDescription(description);
@@ -77,7 +76,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         User currentUser = userProvider.getCurrentUser();
 
         if(!comment.getAuthor().equals(currentUser)) {
-            throw new AccessDeniedException("Удалять может только автор");
+            throw new ForbiddenException("Удалять может только автор");
         }
         commentRepository.delete(comment);
     }

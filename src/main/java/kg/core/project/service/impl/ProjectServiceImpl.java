@@ -1,5 +1,6 @@
 package kg.core.project.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
@@ -39,7 +40,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional(readOnly = true)
     public List<Project> findAll() {
         User currentUser = userProvider.getCurrentUser();
-        return repository.findAllByOwner(currentUser);
+        return repository.findAllProjectsByUserIdAndStatus(currentUser.getId(), InvitationStatus.ACCEPTED);
     }
 
     @Override
@@ -48,8 +49,12 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         Project project = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Проект с id: " + id + " не найден!"));
         User currentUser = userProvider.getCurrentUser();
-        if (!project.getOwner().getId().equals(currentUser.getId())) {
-            throw new NotFoundException("Проект с id: " + id + " не найден!");
+
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Проекс с id: " + id + " не найден!"));
+
+        if(projectMember.getInvitationStatus() != InvitationStatus.ACCEPTED) {
+            throw new NotFoundException("Проекс с id: " + id + " не найден!");
         }
         return project;
     }

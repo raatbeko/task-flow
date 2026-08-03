@@ -1,17 +1,19 @@
 package kg.core.projectMember.service.impl;
 
-import kg.core.auth.service.impl.DefaultAccountContextProvider;
+import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
-import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
+import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.projectMember.service.ProjectMemberService;
+import kg.core.security.validator.ProjectSecurityValidator;
 import kg.core.user.model.User;
 import kg.core.user.repository.UserRepository;
+import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -27,15 +29,17 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     ProjectMemberRepository projectMemberRepository;
     ProjectRepository projectRepository;
     UserRepository userRepository;
-    DefaultAccountContextProvider defaultAccountContextProvider;
+    UserProvider userProvider;
+    ProjectSecurityValidator  projectSecurityValidator;
 
 
-    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, DefaultAccountContextProvider defaultAccountContextProvider) {
+    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectSecurityValidator  projectSecurityValidator, UserProvider userProvider) {
         super(projectMemberRepository);
         this.projectMemberRepository = projectMemberRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.defaultAccountContextProvider = defaultAccountContextProvider;
+        this.userProvider = userProvider;
+        this.projectSecurityValidator = projectSecurityValidator;
     }
 
     @Override
@@ -44,6 +48,8 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         if (email == null && username == null) {
             throw new IllegalArgumentException("Укадите email или username");
         }
+
+        projectSecurityValidator.checkAccess(projectId);
 
         User user = email != null
                 ? userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Пользователь с таким email не найден"))
@@ -72,6 +78,8 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public ProjectMember updateRole(Long memberId, ProjectRole role) {
         ProjectMember member = find(memberId);
 
+        projectSecurityValidator.checkAccess(member.getProject().getId());
+
         if(member.getRole() == ProjectRole.OWNER){
             throw new IllegalArgumentException("Нельзя изменить роль владельца");
         }
@@ -89,6 +97,9 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public ProjectMember respondToInvitation(Long memberId, InvitationStatus status) {
         ProjectMember member = find(memberId);
 
+        if(!member.getUser().getId().equals(userProvider.getCurrentUser().getId())) {
+            throw new ForbiddenException("Вы не можете принять чужое приглашение");
+        }
         if(member.getInvitationStatus() !=  InvitationStatus.PENDING) {
             throw new IllegalArgumentException("Приглашение уже было обработано");
         }
@@ -107,6 +118,8 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public void removeMember(Long memberId) {
         ProjectMember member = find(memberId);
 
+        projectSecurityValidator.checkAccess(member.getProject().getId());
+
         if (member.getRole() == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Нельзя удалить пользователя с ролью Owner");
         }
@@ -118,7 +131,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     @Override
     @Transactional
     public void leaveProject(Long projectId) {
-        User currentUser = defaultAccountContextProvider.getCurrentUser();
+        User currentUser = userProvider.getCurrentUser();
 
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("Вы не являетесь участником проекта"));

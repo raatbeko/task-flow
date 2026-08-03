@@ -1,16 +1,22 @@
 package kg.core.board.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.ForbiddenException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.model.Board;
 import kg.core.board.model.BoardStatus;
 import kg.core.board.repository.BoardRepository;
 import kg.core.board.service.BoardService;
-import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
-import kg.core.boardColumn.model.BoardColumn;
+import kg.core.boardMember.model.BoardMember;
+import kg.core.boardMember.model.BoardRole;
+import kg.core.boardMember.repository.BoardMemberRepository;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
+import kg.core.projectMember.model.ProjectMember;
+import kg.core.projectMember.repository.ProjectMemberRepository;
+import kg.core.user.model.User;
+import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -24,11 +30,17 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     BoardRepository boardRepository;
     ProjectRepository projectRepository;
+    BoardMemberRepository boardMemberRepository;
+    UserProvider userProvider;
+    ProjectMemberRepository projectMemberRepository;
 
-    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository, BoardMemberRepository boardMemberRepository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository) {
         super(boardRepository);
         this.boardRepository = boardRepository;
         this.projectRepository = projectRepository;
+        this.boardMemberRepository = boardMemberRepository;
+        this.userProvider = userProvider;
+        this.projectMemberRepository = projectMemberRepository;
     }
 
 
@@ -38,13 +50,26 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
 
+        User currentUser = userProvider.getCurrentUser();
+
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUser.getId())
+                .orElseThrow(() -> new ForbiddenException("У вас нет доступа к этому проекту"));
+
         int nextPosition = boardRepository.countByProjectId(project.getId());
 
         board.setProject(project);
         board.setStatus(BoardStatus.ACTIVE);
         board.setPosition(nextPosition);
+        Board savedBoard = boardRepository.save(board);
 
-        return save(board);
+        BoardMember boardMember = new BoardMember();
+        boardMember.setBoard(savedBoard);
+        boardMember.setProjectMember(projectMember);
+        boardMember.setRole(BoardRole.OWNER);
+        boardMemberRepository.save(boardMember);
+
+        return savedBoard;
+
     }
 
     @Override

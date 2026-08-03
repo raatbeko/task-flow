@@ -24,7 +24,7 @@ public class BoardMemberEndpointImpl implements BoardMemberEndpoint {
     @Override
     public BoardMemberResponse invite(InviteBoardMemberRequest inviteBoardMemberRequest) {
         BoardMember boardMember = boardMemberService.invite(inviteBoardMemberRequest.projectMemberId(),
-                inviteBoardMemberRequest.boardId(), inviteBoardMemberRequest.email(),
+                inviteBoardMemberRequest.boardId(),
                 inviteBoardMemberRequest.role());
 
         return boardMemberMapper.toResponse(boardMember);
