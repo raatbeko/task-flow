@@ -1,6 +1,7 @@
 package kg.core.boardColumn.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
 import kg.core.board.repository.BoardRepository;
@@ -33,7 +34,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public BoardColumn create(Long boardId, BoardColumn column) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("Доска не найдена"));
+                .orElseThrow(() -> new NotFoundException("Доска не найдена"));
 
         int nextPosition = boardColumnRepository.countByBoardId(board.getId());
 

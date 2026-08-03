@@ -1,6 +1,7 @@
 package kg.core.board.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.model.Board;
@@ -36,7 +37,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public Board create(Long projectId, Board board) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
+                .orElseThrow(() -> new NotFoundException("Проект не найден"));
 
         int nextPosition = boardRepository.countByProjectId(project.getId());
 
@@ -82,6 +83,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         boardRepository.saveAll(boards);
     }
 
+    @Transactional
     @Override
     public List<Board> findByProjectId(Long id) {
         return boardRepository.findByProjectIdOrderByPositionAsc(id);

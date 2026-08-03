@@ -62,7 +62,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         Comment comment = find(id);
         User currentUser = userProvider.getCurrentUser();
 
-        if(!comment.getAuthor().equals(currentUser)) {
+        if(!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Редактировать может только автор");
         }
 
@@ -76,7 +76,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         Comment comment = find(id);
         User currentUser = userProvider.getCurrentUser();
 
-        if(!comment.getAuthor().equals(currentUser)) {
+        if(!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Удалять может только автор");
         }
         commentRepository.delete(comment);

@@ -59,6 +59,7 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
 
     }
 
+    @Transactional
     @Override
     public BoardMember updateRole(Long memberId, BoardRole role) {
         BoardMember boardMember = find(memberId);
@@ -66,6 +67,7 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
         return boardMemberRepository.save(boardMember);
     }
 
+    @Transactional
     @Override
     public void removeMember(Long memberId) {
         BoardMember boardMember = find(memberId);

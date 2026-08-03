@@ -1,6 +1,7 @@
 package kg.core.task.mapper;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.NotFoundException;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.tag.model.Tag;
@@ -63,14 +64,14 @@ public abstract class TaskMapper {
     protected BoardColumn boardColumnIdToBoardColumn(Long boardColumnId) {
         if (boardColumnId == null) return null;
         return boardColumnRepository.findById(boardColumnId)
-                .orElseThrow(() -> new EntityNotFoundException("Колонка не найдена"));
+                .orElseThrow(() -> new NotFoundException("Колонка не найдена"));
     }
 
     @Named("assigneeIdToUsers")
     protected Collection<User> assigneeIdToUsers(Long userId) {
         if (userId == null) return new HashSet<>();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         return Set.of(user);
     }
 
@@ -85,7 +86,7 @@ public abstract class TaskMapper {
         if (tagIds == null || tagIds.length == 0) return new HashSet<>();
         return Arrays.stream(tagIds)
                 .map(id -> tagRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException("Тег не найден с id: " + id)))
+                        .orElseThrow(() -> new NotFoundException("Тег не найден с id: " + id)))
                 .collect(Collectors.toSet());
     }
 

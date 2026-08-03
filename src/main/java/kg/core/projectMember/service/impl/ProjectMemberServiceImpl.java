@@ -1,6 +1,7 @@
 package kg.core.projectMember.service.impl;
 
 import kg.core.auth.service.impl.DefaultAccountContextProvider;
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.project.model.Project;
@@ -42,7 +43,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     @Transactional
     public ProjectMember invite(Long projectId, String email, String username, ProjectRole role) {
         if (email == null && username == null) {
-            throw new IllegalArgumentException("Укадите email или username");
+            throw new ConflictException("Укажите email или username");
         }
 
         User user = email != null
@@ -52,11 +53,11 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundException("Проект не найден"));
 
         if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
-            throw new IllegalArgumentException("Пользователь уже является участником проекта");
+            throw new ConflictException("Пользователь уже является участником проекта");
         }
 
         if (role == ProjectRole.OWNER) {
-            throw new IllegalArgumentException("Нельзя пригласить пользователя с ролью OWNER");
+            throw new ConflictException("Нельзя пригласить пользователя с ролью OWNER");
         }
 
         ProjectMember projectMember = new ProjectMember();
@@ -73,11 +74,11 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         ProjectMember member = find(memberId);
 
         if(member.getRole() == ProjectRole.OWNER){
-            throw new IllegalArgumentException("Нельзя изменить роль владельца");
+            throw new ConflictException("Нельзя изменить роль владельца");
         }
 
         if (role == ProjectRole.OWNER) {
-            throw new IllegalArgumentException("Нельзя назначить роль Owner");
+            throw new ConflictException("Нельзя назначить роль Owner");
         }
 
         member.setRole(role);
@@ -90,7 +91,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         ProjectMember member = find(memberId);
 
         if(member.getInvitationStatus() !=  InvitationStatus.PENDING) {
-            throw new IllegalArgumentException("Приглашение уже было обработано");
+            throw new ConflictException("Приглашение уже было обработано");
         }
 
         if (status == InvitationStatus.DECLINED) {
@@ -108,7 +109,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
         ProjectMember member = find(memberId);
 
         if (member.getRole() == ProjectRole.OWNER) {
-            throw new IllegalArgumentException("Нельзя удалить пользователя с ролью Owner");
+            throw new ConflictException("Нельзя удалить пользователя с ролью Owner");
         }
 
         projectMemberRepository.delete(member);
@@ -124,12 +125,13 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
                 .orElseThrow(() -> new NotFoundException("Вы не являетесь участником проекта"));
 
         if (member.getRole() == ProjectRole.OWNER) {
-            throw new IllegalArgumentException("Вы не можете покинуть проект, т.к являетесь владельцем");
+            throw new ConflictException("Вы не можете покинуть проект, т.к являетесь владельцем");
         }
 
         projectMemberRepository.delete(member);
     }
 
+    @Transactional
     @Override
     public List<ProjectMember> getByProject(Long projectId) {
         return projectMemberRepository.findByProjectId(projectId);

@@ -87,6 +87,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         return repository.save(task);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         Task task = find(id);

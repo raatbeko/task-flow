@@ -58,7 +58,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @Operation(
-            summary = "Обнововить задачу",
+            summary = "Обновить задачу",
             description = "Возвращяет информацию о задаче"
     )
     public TaskDto update(@PathVariable Long id, @Valid @RequestBody TaskDto request) {
