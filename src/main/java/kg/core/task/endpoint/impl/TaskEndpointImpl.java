@@ -2,6 +2,7 @@ package kg.core.task.endpoint.impl;
 
 import kg.core.task.dtos.TaskDto;
 import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.task.mapper.TaskMapper;
 import kg.core.task.model.Task;
@@ -75,6 +76,23 @@ public class TaskEndpointImpl implements TaskEndpoint {
     public UpdateDto replacePurposeUsers(Long id, UpdateDto request) {
         service.replacePurposeUsers(id, request);
         return request;
+    }
+
+    @Override
+    public void delete(Long id) {
+        service.delete(id);
+    }
+
+    @Override
+    public TaskDto duplicate(Long id) {
+        Task task = service.duplicate(id);
+        return mapper.toDto(task);
+    }
+
+    @Override
+    public UpdateDto move(Long id, UpdatePosition request) {
+        service.moveTask(id, request);
+        return new UpdateDto(request.newPosition(), null, null);
     }
 
 }

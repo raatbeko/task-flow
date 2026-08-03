@@ -7,10 +7,12 @@ import kg.core.board.model.Board;
 import kg.core.board.model.BoardStatus;
 import kg.core.board.repository.BoardRepository;
 import kg.core.board.service.BoardService;
-import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
+import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
+import kg.core.task.model.Task;
+import kg.core.task.repository.TaskRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -24,11 +26,16 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     BoardRepository boardRepository;
     ProjectRepository projectRepository;
+    BoardColumnRepository boardColumnRepository;
+    TaskRepository taskRepository;
 
-    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository,
+                               BoardColumnRepository boardColumnRepository, TaskRepository taskRepository) {
         super(boardRepository);
         this.boardRepository = boardRepository;
         this.projectRepository = projectRepository;
+        this.boardColumnRepository = boardColumnRepository;
+        this.taskRepository = taskRepository;
     }
 
 
@@ -51,28 +58,35 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public void delete(Long id){
         Board board = find(id);
+        Long projectId = board.getProject().getId();
         boardRepository.delete(board);
+
+        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(projectId);
+
+        for (int i = 0; i < boards.size(); i++) {
+            boards.get(i).setPosition(i);
+        }
+
+        boardRepository.saveAll(boards);
     }
 
     @Override
     @Transactional
     public void updatePosition(Long id, BoardPositionRequest request) {
         Board board = find(id);
-        Long projectId = board.getProject().getId();
         int oldPosition = board.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
 
         if (newPosition == oldPosition) return;
 
-        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(projectId);
+        List<Board> boards = boardRepository.findByProjectIdOrderByPositionAsc(board.getProject().getId());
 
-        int maxPosition = boards.size() - 1;
-        if (newPosition < 0 || newPosition > maxPosition) {
-            newPosition = maxPosition;
+        boards.removeIf(b -> b.getId().equals(board.getId()));
+
+        if (newPosition < 0 || newPosition > boards.size()) {
+            newPosition = boards.size();
         }
-        if (newPosition == oldPosition) return;
 
-        boards.remove((int) oldPosition);
         boards.add(newPosition, board);
 
         for (int i = 0; i < boards.size(); i++) {
@@ -101,13 +115,42 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         Board originalBoard = find(id);
         int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
-        Board copyBoard =  new Board();
+        Board copyBoard = new Board();
         copyBoard.setProject(originalBoard.getProject());
         copyBoard.setName(originalBoard.getName());
         copyBoard.setDescription(originalBoard.getDescription());
         copyBoard.setPosition(nextPosition);
         copyBoard.setStatus(BoardStatus.ACTIVE);
 
-        return boardRepository.save(copyBoard);
+        Board savedBoard = boardRepository.save(copyBoard);
+
+        List<BoardColumn> originalColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(originalBoard.getId());
+
+        for (BoardColumn originalColumn : originalColumns) {
+            BoardColumn copyColumn = new BoardColumn();
+            copyColumn.setBoard(savedBoard);
+            copyColumn.setName(originalColumn.getName());
+            copyColumn.setPosition(originalColumn.getPosition());
+
+            BoardColumn savedColumn = boardColumnRepository.save(copyColumn);
+
+            List<Task> originalTasks = taskRepository.findByBoardColumnIdOrderByPositionAsc(originalColumn.getId());
+
+            for (Task originalTask : originalTasks) {
+                Task copyTask = new Task();
+                copyTask.setBoardColumn(savedColumn);
+                copyTask.setTitle(originalTask.getTitle());
+                copyTask.setDescription(originalTask.getDescription());
+                copyTask.setPriority(originalTask.getPriority());
+                copyTask.setDueDate(originalTask.getDueDate());
+                copyTask.setPosition(originalTask.getPosition());
+                copyTask.getTags().addAll(originalTask.getTags());
+                copyTask.getAssignees().addAll(originalTask.getAssignees());
+
+                taskRepository.save(copyTask);
+            }
+        }
+
+        return savedBoard;
     }
 }

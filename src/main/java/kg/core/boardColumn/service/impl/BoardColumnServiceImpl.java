@@ -8,6 +8,8 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
+import kg.core.task.model.Task;
+import kg.core.task.repository.TaskRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,14 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     BoardColumnRepository boardColumnRepository;
     BoardRepository boardRepository;
+    TaskRepository taskRepository;
 
-    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository) {
+    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository,
+                                     TaskRepository taskRepository) {
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -47,21 +52,19 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void updatePosition(Long id, BoardColumnPositionRequest request) {
         BoardColumn boardColumn = find(id);
-        Long boardId = boardColumn.getBoard().getId();
         int oldPosition = boardColumn.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
 
         if (newPosition == oldPosition) return;
 
-        List<BoardColumn> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+        List<BoardColumn> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(boardColumn.getBoard().getId());
 
-        int maxPosition = boardColumns.size() - 1;
-        if (newPosition < 0 || newPosition > maxPosition) {
-            newPosition = maxPosition;
+        boardColumns.removeIf(c -> c.getId().equals(boardColumn.getId()));
+
+        if (newPosition < 0 || newPosition > boardColumns.size()) {
+            newPosition = boardColumns.size();
         }
-        if (newPosition == oldPosition) return;
 
-        boardColumns.remove((int) oldPosition);
         boardColumns.add(newPosition, boardColumn);
 
         for (int i = 0; i < boardColumns.size(); i++) {
@@ -75,12 +78,53 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void delete(Long id) {
         BoardColumn boardColumn = find(id);
-        delete(boardColumn.getId());
+        Long boardId = boardColumn.getBoard().getId();
+        boardColumnRepository.delete(boardColumn);
+
+        List<BoardColumn> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+
+        for (int i = 0; i < boardColumns.size(); i++) {
+            boardColumns.get(i).setPosition(i);
+        }
+
+        boardColumnRepository.saveAll(boardColumns);
     }
 
     @Override
     public List<BoardColumn> findByBoardId(Long boardId) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+    }
+
+    @Override
+    @Transactional
+    public BoardColumn duplicate(Long id) {
+        BoardColumn originalColumn = find(id);
+        int nextPosition = boardColumnRepository.countByBoardId(originalColumn.getBoard().getId());
+
+        BoardColumn copyColumn = new BoardColumn();
+        copyColumn.setBoard(originalColumn.getBoard());
+        copyColumn.setName(originalColumn.getName());
+        copyColumn.setPosition(nextPosition);
+
+        BoardColumn savedColumn = boardColumnRepository.save(copyColumn);
+
+        List<Task> originalTasks = taskRepository.findByBoardColumnIdOrderByPositionAsc(originalColumn.getId());
+
+        for (Task originalTask : originalTasks) {
+            Task copyTask = new Task();
+            copyTask.setBoardColumn(savedColumn);
+            copyTask.setTitle(originalTask.getTitle());
+            copyTask.setDescription(originalTask.getDescription());
+            copyTask.setPriority(originalTask.getPriority());
+            copyTask.setDueDate(originalTask.getDueDate());
+            copyTask.setPosition(originalTask.getPosition());
+            copyTask.getTags().addAll(originalTask.getTags());
+            copyTask.getAssignees().addAll(originalTask.getAssignees());
+
+            taskRepository.save(copyTask);
+        }
+
+        return savedColumn;
     }
 }
 

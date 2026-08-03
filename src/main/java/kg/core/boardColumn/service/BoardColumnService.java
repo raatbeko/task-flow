@@ -15,5 +15,7 @@ public interface BoardColumnService extends CrudService<BoardColumn, Long> {
 
     void delete(Long id);
 
+    BoardColumn duplicate(Long id);
+
     List<BoardColumn> findByBoardId(Long boardId);
 }

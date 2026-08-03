@@ -73,6 +73,16 @@ public class BoardColumnController {
         return endpoint.getById(id);
     }
 
+    @PostMapping("/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Дублировать колонку",
+            description = "Создает копию колонки с задачами в той же доске"
+    )
+    public BoardColumnResponse duplicate(@PathVariable Long id) {
+        return endpoint.duplicate(id);
+    }
+
     @PatchMapping("/{id}/change-position")
     @Operation(
             summary = "Поменять позицию",

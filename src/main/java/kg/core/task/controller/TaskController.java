@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.core.task.dtos.TaskDto;
 import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.UpdatePosition;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -75,6 +76,15 @@ public class TaskController {
         return endpoint.changePosition(id, request);
     }
 
+    @PutMapping("/{id}/move")
+    @Operation(
+            summary = "Поменять позицию",
+            description = "Меняет позицию задачи в другую колонку"
+    )
+    public UpdateDto move(@PathVariable Long id, @Valid @RequestBody UpdatePosition request) {
+        return endpoint.move(id, request);
+    }
+
     @PutMapping("/{id}/purpose-tags")
     @Operation(
             summary = "Добавить теги задачи",
@@ -109,5 +119,25 @@ public class TaskController {
     )
     public UpdateDto replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
         return endpoint.replacePurposeUsers(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "Удалить задачу",
+            description = "Удаляет задачу по ID"
+    )
+    public void delete(@PathVariable Long id) {
+        endpoint.delete(id);
+    }
+
+    @PostMapping("/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Дублировать задачу",
+            description = "Создает копию задачи в той же колонке"
+    )
+    public TaskDto duplicate(@PathVariable Long id) {
+        return endpoint.duplicate(id);
     }
 }

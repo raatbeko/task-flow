@@ -12,4 +12,6 @@ public interface ProjectService extends CrudService<Project, Long> {
     void unarchive(Long id);
 
     Project create(Project project);
+
+    Project duplicate(Long id);
 }
