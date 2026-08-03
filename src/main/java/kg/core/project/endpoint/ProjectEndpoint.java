@@ -24,4 +24,5 @@ public interface ProjectEndpoint {
 
     void delete(Long id);
 
+    ProjectResponse duplicate(Long id);
 }

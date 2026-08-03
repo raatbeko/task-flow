@@ -19,5 +19,7 @@ public interface BoardColumnEndpoint {
 
     BoardColumnResponse changePosition(Long id, BoardColumnPositionRequest request);
 
+    BoardColumnResponse duplicate(Long id);
+
     List<BoardColumnResponse> findByBoardId(Long boardId);
 }

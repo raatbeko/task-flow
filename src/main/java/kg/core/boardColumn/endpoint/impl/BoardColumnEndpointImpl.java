@@ -55,6 +55,12 @@ public class BoardColumnEndpointImpl implements BoardColumnEndpoint {
     }
 
     @Override
+    public BoardColumnResponse duplicate(Long id) {
+        BoardColumn column = boardColumnService.duplicate(id);
+        return boardColumnMapper.toResponse(column);
+    }
+
+    @Override
     public List<BoardColumnResponse> findByBoardId(Long boardId) {
         return boardColumnMapper.toResponse(boardColumnService.findByBoardId(boardId));
     }

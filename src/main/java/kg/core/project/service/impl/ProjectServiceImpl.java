@@ -13,6 +13,14 @@ import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
+import kg.core.board.model.Board;
+import kg.core.board.repository.BoardRepository;
+import kg.core.boardColumn.model.BoardColumn;
+import kg.core.boardColumn.repository.BoardColumnRepository;
+import kg.core.task.model.Task;
+import kg.core.task.repository.TaskRepository;
+import kg.core.tag.model.Tag;
+import kg.core.tag.repository.TagRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -27,12 +35,23 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     ProjectRepository repository;
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
+    BoardRepository boardRepository;
+    BoardColumnRepository boardColumnRepository;
+    TaskRepository taskRepository;
+    TagRepository tagRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository ) {
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider,
+                              ProjectMemberRepository projectMemberRepository,
+                              BoardRepository boardRepository, BoardColumnRepository boardColumnRepository,
+                              TaskRepository taskRepository, TagRepository tagRepository) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
+        this.boardRepository = boardRepository;
+        this.boardColumnRepository = boardColumnRepository;
+        this.taskRepository = taskRepository;
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -95,6 +114,62 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         projectMemberRepository.save(projectMember);
 
         return newProject;
+    }
+
+    @Override
+    @Transactional
+    public Project duplicate(Long id) {
+        Project originalProject = find(id);
+
+        Project copyProject = new Project();
+        copyProject.setName(originalProject.getName());
+        copyProject.setDescription(originalProject.getDescription());
+        copyProject.setOwner(originalProject.getOwner());
+        copyProject.setStatus(ProjectStatus.ACTIVE);
+
+        Project savedProject = repository.save(copyProject);
+
+        List<Board> originalBoards = boardRepository.findByProjectIdOrderByPositionAsc(originalProject.getId());
+
+        for (Board originalBoard : originalBoards) {
+            Board copyBoard = new Board();
+            copyBoard.setProject(savedProject);
+            copyBoard.setName(originalBoard.getName());
+            copyBoard.setDescription(originalBoard.getDescription());
+            copyBoard.setPosition(originalBoard.getPosition());
+            copyBoard.setStatus(originalBoard.getStatus());
+
+            Board savedBoard = boardRepository.save(copyBoard);
+
+            List<BoardColumn> originalColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(originalBoard.getId());
+
+            for (BoardColumn originalColumn : originalColumns) {
+                BoardColumn copyColumn = new BoardColumn();
+                copyColumn.setBoard(savedBoard);
+                copyColumn.setName(originalColumn.getName());
+                copyColumn.setPosition(originalColumn.getPosition());
+
+                BoardColumn savedColumn = boardColumnRepository.save(copyColumn);
+
+                List<Task> originalTasks = taskRepository.findByBoardColumnIdOrderByPositionAsc(originalColumn.getId());
+
+                for (Task originalTask : originalTasks) {
+                    Task copyTask = new Task();
+                    copyTask.setBoardColumn(savedColumn);
+                    copyTask.setTitle(originalTask.getTitle());
+                    copyTask.setDescription(originalTask.getDescription());
+                    copyTask.setPriority(originalTask.getPriority());
+                    copyTask.setDueDate(originalTask.getDueDate());
+                    copyTask.setPosition(originalTask.getPosition());
+                    copyTask.getTags().addAll(originalTask.getTags());
+                    copyTask.getAssignees().addAll(originalTask.getAssignees());
+
+                    taskRepository.save(copyTask);
+                }
+            }
+        }
+
+        return savedProject;
     }
 
 }

@@ -84,6 +84,12 @@ public class TaskEndpointImpl implements TaskEndpoint {
     }
 
     @Override
+    public TaskDto duplicate(Long id) {
+        Task task = service.duplicate(id);
+        return mapper.toDto(task);
+    }
+
+    @Override
     public UpdateDto move(Long id, UpdatePosition request) {
         service.moveTask(id, request);
         return new UpdateDto(request.newPosition(), null, null);

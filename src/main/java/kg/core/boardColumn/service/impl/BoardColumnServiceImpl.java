@@ -8,6 +8,8 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
+import kg.core.task.model.Task;
+import kg.core.task.repository.TaskRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,14 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     BoardColumnRepository boardColumnRepository;
     BoardRepository boardRepository;
+    TaskRepository taskRepository;
 
-    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository) {
+    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository,
+                                     TaskRepository taskRepository) {
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -88,6 +93,38 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Override
     public List<BoardColumn> findByBoardId(Long boardId) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+    }
+
+    @Override
+    @Transactional
+    public BoardColumn duplicate(Long id) {
+        BoardColumn originalColumn = find(id);
+        int nextPosition = boardColumnRepository.countByBoardId(originalColumn.getBoard().getId());
+
+        BoardColumn copyColumn = new BoardColumn();
+        copyColumn.setBoard(originalColumn.getBoard());
+        copyColumn.setName(originalColumn.getName());
+        copyColumn.setPosition(nextPosition);
+
+        BoardColumn savedColumn = boardColumnRepository.save(copyColumn);
+
+        List<Task> originalTasks = taskRepository.findByBoardColumnIdOrderByPositionAsc(originalColumn.getId());
+
+        for (Task originalTask : originalTasks) {
+            Task copyTask = new Task();
+            copyTask.setBoardColumn(savedColumn);
+            copyTask.setTitle(originalTask.getTitle());
+            copyTask.setDescription(originalTask.getDescription());
+            copyTask.setPriority(originalTask.getPriority());
+            copyTask.setDueDate(originalTask.getDueDate());
+            copyTask.setPosition(originalTask.getPosition());
+            copyTask.getTags().addAll(originalTask.getTags());
+            copyTask.getAssignees().addAll(originalTask.getAssignees());
+
+            taskRepository.save(copyTask);
+        }
+
+        return savedColumn;
     }
 }
 

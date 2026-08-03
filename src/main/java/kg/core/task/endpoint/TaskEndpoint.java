@@ -29,5 +29,7 @@ public interface TaskEndpoint {
 
     void delete(Long id);
 
+    TaskDto duplicate(Long id);
+
     UpdateDto move(Long id, @Valid UpdatePosition request);
 }

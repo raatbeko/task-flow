@@ -60,4 +60,10 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     public void delete(Long id) {
         service.delete(id);
     }
+
+    @Override
+    public ProjectResponse duplicate(Long id) {
+        Project project = service.duplicate(id);
+        return mapper.toResponse(project);
+    }
 }

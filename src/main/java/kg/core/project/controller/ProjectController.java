@@ -95,4 +95,14 @@ public class ProjectController {
     public void unarchive(@PathVariable Long id) {
         endpoint.unarchive(id);
     }
+
+    @PostMapping("/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Дублировать проект",
+            description = "Создает копию проекта со всеми досками, колонками и задачами"
+    )
+    public ProjectResponse duplicate(@PathVariable Long id) {
+        return endpoint.duplicate(id);
+    }
 }

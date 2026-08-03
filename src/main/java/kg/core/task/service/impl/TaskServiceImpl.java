@@ -189,4 +189,23 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         }
     }
 
+    @Override
+    @Transactional
+    public Task duplicate(Long id) {
+        Task originalTask = find(id);
+        int nextPosition = repository.countByBoardColumnId(originalTask.getBoardColumn().getId());
+
+        Task copyTask = new Task();
+        copyTask.setBoardColumn(originalTask.getBoardColumn());
+        copyTask.setTitle(originalTask.getTitle());
+        copyTask.setDescription(originalTask.getDescription());
+        copyTask.setPriority(originalTask.getPriority());
+        copyTask.setDueDate(originalTask.getDueDate());
+        copyTask.setPosition(nextPosition);
+        copyTask.getTags().addAll(originalTask.getTags());
+        copyTask.getAssignees().addAll(originalTask.getAssignees());
+
+        return repository.save(copyTask);
+    }
+
 }

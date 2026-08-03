@@ -130,4 +130,14 @@ public class TaskController {
     public void delete(@PathVariable Long id) {
         endpoint.delete(id);
     }
+
+    @PostMapping("/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Дублировать задачу",
+            description = "Создает копию задачи в той же колонке"
+    )
+    public TaskDto duplicate(@PathVariable Long id) {
+        return endpoint.duplicate(id);
+    }
 }
