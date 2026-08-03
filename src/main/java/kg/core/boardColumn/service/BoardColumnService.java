@@ -3,7 +3,6 @@ package kg.core.boardColumn.service;
 import kg.core.base.service.CrudService;
 import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
-import kg.core.task.dtos.UpdatePosition;
 
 import java.util.List;
 

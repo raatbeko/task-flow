@@ -71,7 +71,7 @@ public class ProjectMemberController {
         endpoint.removeMember(memberId);
     }
 
-    @DeleteMapping("/{projectId/leave}")
+    @DeleteMapping("/{projectId}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
             summary = "Покинуть проект",

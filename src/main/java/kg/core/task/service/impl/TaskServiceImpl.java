@@ -5,7 +5,9 @@ import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
-import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.UpdatePositionDto;
+import kg.core.task.dtos.UpdateTagsDto;
+import kg.core.task.dtos.UpdateUsersDto;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
 import kg.core.task.service.TaskService;
@@ -42,9 +44,11 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         return repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
     }
 
+
+
     @Override
     @Transactional
-    public void updatePurposeTags(Long id, UpdateDto request) {
+    public void updatePurposeTags(Long id, UpdateTagsDto request) {
         Task task = find(id);
         addTagsToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idTags());
         repository.save(task);
@@ -52,7 +56,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void updatePurposeUsers(Long id, UpdateDto request) {
+    public void updatePurposeUsers(Long id, UpdateUsersDto request) {
         Task task = find(id);
         addUsersToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idUsers());
         repository.save(task);
@@ -60,7 +64,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void replacePurposeTags(Long id, UpdateDto request) {
+    public void replacePurposeTags(Long id, UpdateTagsDto request) {
         Task task = find(id);
         task.getTags().clear();
         addTagsToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idTags());
@@ -68,7 +72,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void replacePurposeUsers(Long id, UpdateDto request) {
+    public void replacePurposeUsers(Long id, UpdateUsersDto request) {
         Task task = find(id);
         task.getAssignees().clear();
         addUsersToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idUsers());
@@ -91,7 +95,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
 
     @Override
     @Transactional
-    public void updatePosition(Long id, UpdateDto request) {
+    public void updatePosition(Long id, UpdatePositionDto request) {
         Task task = find(id);
         Long boardColumnId = task.getBoardColumn().getId();
         int oldPosition = task.getPosition();

@@ -1,7 +1,6 @@
 package kg.core.comment.repository;
 
 import kg.core.base.search.BaseRepository;
-import kg.core.board.model.Board;
 import kg.core.comment.model.Comment;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
