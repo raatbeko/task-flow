@@ -50,9 +50,16 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     @Override
     @Transactional
-    public void delete(Long id){
+    public void delete(Long id) {
         Board board = find(id);
+        Long projectId = board.getProject().getId();
         boardRepository.delete(board);
+
+        List<Board> remaining = boardRepository.findByProjectIdOrderByPositionAsc(projectId);
+        for (int i = 0; i < remaining.size(); i++) {
+            remaining.get(i).setPosition(i);
+        }
+        boardRepository.saveAll(remaining);
     }
 
     @Override

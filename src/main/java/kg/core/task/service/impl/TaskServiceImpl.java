@@ -91,7 +91,14 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     public void delete(Long id) {
         Task task = find(id);
+        Long boardColumnId = task.getBoardColumn().getId();
         repository.delete(task);
+
+        List<Task> remaining = repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
+        for (int i = 0; i < remaining.size(); i++) {
+            remaining.get(i).setPosition(i);
+        }
+        repository.saveAll(remaining);
     }
 
     @Override

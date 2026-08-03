@@ -76,7 +76,14 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void delete(Long id) {
         BoardColumn boardColumn = find(id);
-         boardColumnRepository.delete(boardColumn);
+        Long boardId = boardColumn.getBoard().getId();
+        boardColumnRepository.delete(boardColumn);
+
+        List<BoardColumn> remaining = boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
+        for (int i = 0; i < remaining.size(); i++) {
+            remaining.get(i).setPosition(i);
+        }
+        boardColumnRepository.saveAll(remaining);
     }
 
     @Override
