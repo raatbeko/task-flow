@@ -6,6 +6,7 @@ import kg.core.project.model.ProjectStatus;
 
 
 public record ProjectResponse(
+        @Schema(description = "ID проекта") Long id,
         @Schema(description = "Название проекта") String name,
         @Schema(description = "Описание проекта") String description,
         @Schema(description = "владелец проекта") Long ownerId,
