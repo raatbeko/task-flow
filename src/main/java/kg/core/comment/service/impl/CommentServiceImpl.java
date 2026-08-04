@@ -1,11 +1,13 @@
 package kg.core.comment.service.impl;
 
 import kg.core.auth.service.impl.DefaultAccountContextProvider;
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.comment.model.Comment;
 import kg.core.comment.repository.CommentRepository;
 import kg.core.comment.service.CommentService;
+import kg.core.project.model.ProjectStatus;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
 import kg.core.user.model.User;
@@ -38,6 +40,10 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
     public Comment create(Long taskId, Long parentId, String description) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Задача не найдена"));
+
+        if (task.getBoardColumn().getBoard().getProject().getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
 
         User currentUser = userProvider.getCurrentUser();
 

@@ -1,6 +1,7 @@
 package kg.core.boardColumn.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
@@ -9,12 +10,16 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
+import kg.core.project.model.Project;
+import kg.core.project.model.ProjectStatus;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static kg.core.project.model.QProject.project;
 
 
 @Service
@@ -28,6 +33,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
+
     }
 
     @Override
@@ -35,6 +41,10 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     public BoardColumn create(Long boardId, BoardColumn column) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new NotFoundException("Доска не найдена"));
+
+        if (board.getProject().getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
 
         int nextPosition = boardColumnRepository.countByBoardId(board.getId());
 

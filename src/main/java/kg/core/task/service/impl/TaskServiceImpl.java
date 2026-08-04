@@ -1,7 +1,11 @@
 package kg.core.task.service.impl;
 
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.board.model.BoardStatus;
+import kg.core.project.model.Project;
+import kg.core.project.model.ProjectStatus;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
@@ -81,11 +85,22 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     @Transactional
     public Task save(Task task) {
+        Project project = task.getBoardColumn().getBoard().getProject();
+
+        if (project.getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+
+        if (task.getBoardColumn().getBoard().getStatus() == BoardStatus.ARCHIVED) {
+            throw new ConflictException("Доска заархивирована, действие недоступно");
+        }
+
         if (task.getId() == null) {
             task.setPosition(repository.countByBoardColumnId(task.getBoardColumn().getId()));
         }
         return repository.save(task);
     }
+
 
     @Transactional
     @Override

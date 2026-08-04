@@ -1,6 +1,6 @@
 package kg.core.board.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.dtos.BoardPositionRequest;
@@ -8,15 +8,19 @@ import kg.core.board.model.Board;
 import kg.core.board.model.BoardStatus;
 import kg.core.board.repository.BoardRepository;
 import kg.core.board.service.BoardService;
-import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
+import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.project.model.Project;
+import kg.core.project.model.ProjectStatus;
 import kg.core.project.repository.ProjectRepository;
+import kg.core.task.model.Task;
+import kg.core.task.repository.TaskRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -25,19 +29,31 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
     BoardRepository boardRepository;
     ProjectRepository projectRepository;
+    BoardColumnRepository boardColumnRepository;
+    TaskRepository taskRepository;
 
-    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository,
+                               BoardColumnRepository boardColumnRepository, TaskRepository taskRepository) {
         super(boardRepository);
         this.boardRepository = boardRepository;
         this.projectRepository = projectRepository;
+        this.boardColumnRepository = boardColumnRepository;
+        this.taskRepository = taskRepository;
     }
-
 
     @Override
     @Transactional
     public Board create(Long projectId, Board board) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Проект не найден"));
+
+        if (project.getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+
+        if (board.getStatus() == BoardStatus.ARCHIVED) {
+            throw new ConflictException("Доска заархивирована, действие недоступно");
+        }
 
         int nextPosition = boardRepository.countByProjectId(project.getId());
 
@@ -110,13 +126,39 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         Board originalBoard = find(id);
         int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
-        Board copyBoard =  new Board();
+        Board copyBoard = new Board();
         copyBoard.setProject(originalBoard.getProject());
         copyBoard.setName(originalBoard.getName());
         copyBoard.setDescription(originalBoard.getDescription());
         copyBoard.setPosition(nextPosition);
         copyBoard.setStatus(BoardStatus.ACTIVE);
+        boardRepository.save(copyBoard);
 
-        return boardRepository.save(copyBoard);
+        List<BoardColumn> originalColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(originalBoard.getId());
+
+        for (BoardColumn originalColumn : originalColumns) {
+            BoardColumn copyColumn = new BoardColumn();
+            copyColumn.setBoard(copyBoard);
+            copyColumn.setName(originalColumn.getName());
+            copyColumn.setPosition(originalColumn.getPosition());
+            boardColumnRepository.save(copyColumn);
+
+            List<Task> originalTasks = taskRepository.findByBoardColumnIdOrderByPositionAsc(originalColumn.getId());
+
+            for (Task originalTask : originalTasks) {
+                Task copyTask = new Task();
+                copyTask.setBoardColumn(copyColumn);
+                copyTask.setTitle(originalTask.getTitle());
+                copyTask.setDescription(originalTask.getDescription());
+                copyTask.setPriority(originalTask.getPriority());
+                copyTask.setDueDate(originalTask.getDueDate());
+                copyTask.setPosition(originalTask.getPosition());
+                copyTask.setAssignees(new HashSet<>(originalTask.getAssignees()));
+                copyTask.setTags(new HashSet<>(originalTask.getTags()));
+                taskRepository.save(copyTask);
+            }
+        }
+
+        return copyBoard;
     }
 }

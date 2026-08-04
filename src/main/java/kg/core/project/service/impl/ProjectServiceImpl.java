@@ -84,9 +84,11 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void delete(Long id) {
         Project project = get(id);
-        if (project.getStatus() != ProjectStatus.ACTIVE) {
-            throw new ConflictException("Проект с id " + id + " заархивирован. Сначала восстановите проект.");
+        if (project.getStatus() != ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Сначала заархивируйте проект, потом удаляйте");
         }
+
+
 
         List<Long> boardIds = boardRepository.findIdsByProjectId(id);
         for (Long boardId : boardIds) {
