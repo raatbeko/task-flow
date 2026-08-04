@@ -96,7 +96,8 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         }
 
         if (task.getId() == null) {
-            task.setPosition(repository.countByBoardColumnId(task.getBoardColumn().getId()));
+            task.setPosition(repository.findNextPosition(task.getBoardColumn().getId()));
+
         }
         return repository.save(task);
     }

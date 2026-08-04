@@ -46,7 +46,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
             throw new ConflictException("Проект заархивирован, действие недоступно");
         }
 
-        int nextPosition = boardColumnRepository.countByBoardId(board.getId());
+        int nextPosition = boardColumnRepository.findNextPosition(board.getId());
 
         column.setBoard(board);
         column.setPosition(nextPosition);

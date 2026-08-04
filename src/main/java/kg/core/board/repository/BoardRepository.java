@@ -21,4 +21,7 @@ public interface BoardRepository extends BaseRepository<Board, Long> {
 
     @Query("select b.id from Board b where b.project.id = :projectId")
     List<Long> findIdsByProjectId(@Param("projectId") Long projectId);
+
+    @Query("select coalesce(max(bc.position), -1) + 1 from BoardColumn bc where bc.board.id = :boardId")
+    Integer findNextPosition(@Param("boardId") Long boardId);
 }

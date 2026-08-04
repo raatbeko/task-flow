@@ -13,9 +13,11 @@ import java.util.List;
 public interface TaskRepository extends BaseRepository<Task, Long> {
     List<Task> findByBoardColumnIdOrderByPositionAsc(Long boardColumnId);
 
-    int countByBoardColumnId(Long boardColumnId);
 
     @Modifying
     @Query("delete from Task t where t.boardColumn.id in (select bc.id from BoardColumn bc where bc.board.id = :boardId)")
     void deleteByBoardId(@Param("boardId") Long boardId);
+
+    @Query("select coalesce(max(t.position), -1) + 1 from Task t where t.boardColumn.id = :boardColumnId")
+    Integer findNextPosition(@Param("boardColumnId") Long boardColumnId);
 }

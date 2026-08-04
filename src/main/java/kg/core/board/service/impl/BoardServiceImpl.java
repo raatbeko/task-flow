@@ -55,7 +55,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
             throw new ConflictException("Доска заархивирована, действие недоступно");
         }
 
-        int nextPosition = boardRepository.countByProjectId(project.getId());
+        int nextPosition = boardRepository.findNextPosition(project.getId());
 
         board.setProject(project);
         board.setStatus(BoardStatus.ACTIVE);

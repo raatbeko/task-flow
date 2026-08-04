@@ -13,9 +13,11 @@ import java.util.List;
 @Repository
 public interface BoardColumnRepository extends BaseRepository<BoardColumn, Long> {
 
-    int countByBoardId(Long id);
     List<BoardColumn> findByBoardIdOrderByPositionAsc(Long boardId);
     @Modifying
     @Query("delete from BoardColumn bc where bc.board.id = :boardId")
     void deleteByBoardId(@Param("boardId") Long boardId);
+
+    @Query("select coalesce(max(bc.position), -1) + 1 from BoardColumn bc where bc.board.id = :boardId")
+    Integer findNextPosition(@Param("boardId") Long boardId);
 }
