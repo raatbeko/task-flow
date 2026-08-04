@@ -11,7 +11,7 @@ import kg.core.boardMember.service.BoardMemberService;
 import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
 import kg.core.projectMember.repository.ProjectMemberRepository;
-import kg.core.security.validator.BoardSecurityValidator;
+import kg.core.security.validator.AccessGuard;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,14 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
     BoardMemberRepository boardMemberRepository;
     BoardRepository boardRepository;
     ProjectMemberRepository projectMemberRepository;
-    BoardSecurityValidator boardSecurityValidator;
+    AccessGuard accessGuard;
 
-    protected BoardMemberServiceImpl(BoardMemberRepository boardMemberRepository, BoardRepository boardRepository, ProjectMemberRepository projectMemberRepository, BoardSecurityValidator boardSecurityValidator) {
+    protected BoardMemberServiceImpl(BoardMemberRepository boardMemberRepository, BoardRepository boardRepository, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard) {
         super(boardMemberRepository);
         this.boardMemberRepository = boardMemberRepository;
         this.boardRepository = boardRepository;
         this.projectMemberRepository = projectMemberRepository;
-        this.boardSecurityValidator = boardSecurityValidator;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -42,10 +42,11 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new NotFoundException("Доска не найдена"));
 
-        boardSecurityValidator.checkBoardAccess(board.getId(), board.getProject().getId());
 
         ProjectMember projectMember = projectMemberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Участник проекта не найден"));
+
+        accessGuard.requireBoardRole(boardId, board.getProject().getId(), BoardRole.OWNER);
 
         if (projectMember.getInvitationStatus() != InvitationStatus.ACCEPTED) {
             throw new IllegalArgumentException("Участник не принял приглашение в проект");
@@ -69,7 +70,9 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
     public BoardMember updateRole(Long memberId, BoardRole role) {
         BoardMember boardMember = find(memberId);
 
-        boardSecurityValidator.checkBoardAccess(boardMember.getBoard().getId(), boardMember.getBoard().getProject().getId());
+        Board board = boardMember.getBoard();
+
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.OWNER);
 
         boardMember.setRole(role);
         return boardMemberRepository.save(boardMember);
@@ -80,7 +83,9 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
     public void removeMember(Long memberId) {
         BoardMember boardMember = find(memberId);
 
-        boardSecurityValidator.checkBoardAccess(boardMember.getBoard().getId(), boardMember.getBoard().getProject().getId());
+        Board board = boardMember.getBoard();
+
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.OWNER);
 
         boardMemberRepository.delete(boardMember);
 

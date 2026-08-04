@@ -9,8 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", Instant.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", "Forbidden");
-        body.put("message", ex.getMessage());
+        body.put("message", "Error, try again later");
 
         log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
@@ -95,7 +94,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", Instant.now());
         body.put("status", HttpStatus.CONFLICT.value());
         body.put("error", "Data violation");
-        body.put("message", ex.getMessage());
+        body.put("message", "Error, try again later");
         log.error(ex.getMessage());
 
         return  ResponseEntity.status(HttpStatus.CONFLICT).body(body);

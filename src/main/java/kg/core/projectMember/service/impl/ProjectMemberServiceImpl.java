@@ -1,6 +1,5 @@
 package kg.core.projectMember.service.impl;
 
-import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.project.model.Project;
@@ -10,7 +9,7 @@ import kg.core.projectMember.model.ProjectMember;
 import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.projectMember.service.ProjectMemberService;
-import kg.core.security.validator.ProjectSecurityValidator;
+import kg.core.security.validator.AccessGuard;
 import kg.core.user.model.User;
 import kg.core.user.repository.UserRepository;
 import kg.core.utils.UserProvider;
@@ -30,16 +29,16 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     ProjectRepository projectRepository;
     UserRepository userRepository;
     UserProvider userProvider;
-    ProjectSecurityValidator  projectSecurityValidator;
+    AccessGuard accessGuard;
 
 
-    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectSecurityValidator  projectSecurityValidator, UserProvider userProvider) {
+    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, AccessGuard accessGuard, UserProvider userProvider) {
         super(projectMemberRepository);
         this.projectMemberRepository = projectMemberRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.userProvider = userProvider;
-        this.projectSecurityValidator = projectSecurityValidator;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -49,7 +48,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
             throw new IllegalArgumentException("Укадите email или username");
         }
 
-        projectSecurityValidator.checkAccess(projectId);
+        accessGuard.requireProjectRole(projectId, ProjectRole.OWNER);
 
         User user = email != null
                 ? userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Пользователь с таким email не найден"))
@@ -78,7 +77,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public ProjectMember updateRole(Long memberId, ProjectRole role) {
         ProjectMember member = find(memberId);
 
-        projectSecurityValidator.checkAccess(member.getProject().getId());
+        accessGuard.requireProjectRole(member.getProject().getId(), ProjectRole.OWNER);
 
         if(member.getRole() == ProjectRole.OWNER){
             throw new IllegalArgumentException("Нельзя изменить роль владельца");
@@ -94,12 +93,12 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
 
     @Override
     @Transactional
-    public ProjectMember respondToInvitation(Long memberId, InvitationStatus status) {
-        ProjectMember member = find(memberId);
+    public ProjectMember respondToInvitation(Long projectId, InvitationStatus status) {
+        User currentUser = userProvider.getCurrentUser();
 
-        if(!member.getUser().getId().equals(userProvider.getCurrentUser().getId())) {
-            throw new ForbiddenException("Вы не можете принять чужое приглашение");
-        }
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUser.getId())
+                .orElseThrow(() -> new NotFoundException("Приглашение в этот проект не найдено"));
+
         if(member.getInvitationStatus() !=  InvitationStatus.PENDING) {
             throw new IllegalArgumentException("Приглашение уже было обработано");
         }
@@ -118,7 +117,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public void removeMember(Long memberId) {
         ProjectMember member = find(memberId);
 
-        projectSecurityValidator.checkAccess(member.getProject().getId());
+        accessGuard.requireProjectRole(member.getProject().getId(), ProjectRole.OWNER);
 
         if (member.getRole() == ProjectRole.OWNER) {
             throw new IllegalArgumentException("Нельзя удалить пользователя с ролью Owner");
