@@ -17,4 +17,6 @@ public interface CommentRepository extends BaseRepository<Comment, Long> {
     @Query("delete from Comment c where c.task.id in (select t.id from Task t where t.boardColumn.id in (select bc.id from BoardColumn bc where bc.board.id = :boardId))")
     void deleteByBoardId(@Param("boardId") Long boardId);
 
+    void deleteByParentId(Long parentId);
+
 }

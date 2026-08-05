@@ -10,6 +10,7 @@ import kg.core.task.model.Task;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Set;
 
 @Schema(description = "DTO ответа с данными задачи")
 public record TaskDto(
@@ -27,7 +28,7 @@ public record TaskDto(
         @NotNull @PositiveOrZero
         @Schema(description = "Позиция задачи") Integer position,
 
-        @Schema(description = "Пользователь назначенный на задачу") Long assignees,
+        @Schema(description = "Пользователь назначенный на задачу") Set<Long> assignees,
 
         @Schema(description = "Теги прикрепленные к задаче") Long[] tags,
 

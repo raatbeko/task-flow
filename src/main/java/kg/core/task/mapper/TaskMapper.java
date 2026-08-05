@@ -40,8 +40,8 @@ public abstract class TaskMapper {
     protected TagRepository tagRepository;
 
     @Mapping(target = "boardColumn", source = "boardColumnId", qualifiedByName = "boardColumnIdToBoardColumn")
-    @Mapping(target = "assignees", source = "assignees", qualifiedByName = "assigneeIdToUsers")
-    @Mapping(target = "tags", source = "tags", qualifiedByName = "tagIdsToTags")
+    @Mapping(target = "assignees", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     @Mapping(target = "position", ignore = true)
     public abstract Task toEntity(TaskDto dto);
 
@@ -68,17 +68,18 @@ public abstract class TaskMapper {
     }
 
     @Named("assigneeIdToUsers")
-    protected Collection<User> assigneeIdToUsers(Long userId) {
-        if (userId == null) return new HashSet<>();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        return Set.of(user);
+    protected Collection<User> assigneeIdToUsers(Set<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) return new HashSet<>();
+        return userIds.stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Пользователь не найден")))
+                .collect(Collectors.toSet());
     }
 
     @Named("usersToAssigneeId")
-    protected Long usersToAssigneeId(Collection<User> users) {
-        if (users == null || users.isEmpty()) return null;
-        return users.iterator().next().getId();
+    protected Set<Long> usersToAssigneeId(Collection<User> users) {
+        if (users == null || users.isEmpty()) return new HashSet<>();
+        return users.stream().map(User::getId).collect(Collectors.toSet());
     }
 
     @Named("tagIdsToTags")

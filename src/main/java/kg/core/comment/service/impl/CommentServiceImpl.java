@@ -1,6 +1,5 @@
 package kg.core.comment.service.impl;
 
-import kg.core.auth.service.impl.DefaultAccountContextProvider;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -49,8 +49,11 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
 
         Comment parent = null;
 
-        if(parentId != null){
+        if (parentId != null) {
             parent = find(parentId);
+            if (!parent.getTask().getId().equals(taskId)) {
+                throw new IllegalArgumentException("Родительский комментарий принадлежит другой задаче!");
+            }
         }
 
         Comment comment = new Comment();
@@ -82,9 +85,11 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         Comment comment = find(id);
         User currentUser = userProvider.getCurrentUser();
 
-        if(!comment.getAuthor().getId().equals(currentUser.getId())) {
+        if (!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Удалять может только автор");
         }
+
+        commentRepository.deleteByParentId(id);
         commentRepository.delete(comment);
     }
 

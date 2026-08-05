@@ -36,6 +36,19 @@ public class TaskEndpointImpl implements TaskEndpoint {
     public TaskDto create(TaskDto dto) {
         Task task = mapper.toEntity(dto);
         service.save(task);
+
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
+        if (dto.assignees() != null && !dto.assignees().isEmpty()) {
+            service.addUsersToTask(task, projectId, dto.assignees().toArray(new Long[0]));
+        }
+
+
+        if (dto.tags() != null) {
+            service.addTagsToTask(task, projectId, dto.tags());
+        }
+
+        service.save(task);
         return mapper.toDto(task);
     }
 

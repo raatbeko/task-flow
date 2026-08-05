@@ -6,6 +6,7 @@ import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.BoardStatus;
 import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
+import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
@@ -145,7 +146,8 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         repository.saveAll(columnTasks);
     }
 
-    private void addTagsToTask(Task task, Long projectId, Long[] tagIds) {
+    @Override
+    public void addTagsToTask(Task task, Long projectId, Long[] tagIds) {
         if (tagIds == null) return;
         for (Long tagId : tagIds) {
             Tag tag = tagRepository.findById(tagId)
@@ -159,10 +161,11 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         }
     }
 
-    private void addUsersToTask(Task task, Long projectId, Long[] userIds) {
+    @Override
+    public void addUsersToTask(Task task, Long projectId, Long[] userIds) {
         if (userIds == null) return;
         for (Long userId : userIds) {
-            if (!projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+            if (!projectMemberRepository.existsByProjectIdAndUserIdAndInvitationStatus(projectId, userId, InvitationStatus.ACCEPTED)){
                 throw new NotFoundException("Пользователь не найден в проекте с id: " + userId);
             }
             User user = userRepository.findById(userId)
