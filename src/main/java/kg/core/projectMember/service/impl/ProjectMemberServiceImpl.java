@@ -13,6 +13,7 @@ import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.projectMember.service.ProjectMemberService;
 import kg.core.user.model.User;
 import kg.core.user.repository.UserRepository;
+import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -29,19 +30,24 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     ProjectRepository projectRepository;
     UserRepository userRepository;
     DefaultAccountContextProvider defaultAccountContextProvider;
+    UserProvider userProvider;
 
 
-    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, DefaultAccountContextProvider defaultAccountContextProvider) {
+    protected ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository, ProjectRepository projectRepository, UserRepository userRepository, DefaultAccountContextProvider defaultAccountContextProvider, UserProvider userProvider) {
         super(projectMemberRepository);
         this.projectMemberRepository = projectMemberRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.defaultAccountContextProvider = defaultAccountContextProvider;
+        this.userProvider = userProvider;
     }
 
     @Override
     @Transactional
     public ProjectMember invite(Long projectId, String email, String username, ProjectRole role) {
+
+        checkOwner(projectId);
+
         if (email == null && username == null) {
             throw new ConflictException("Укажите email или username");
         }
@@ -72,6 +78,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     @Transactional
     public ProjectMember updateRole(Long memberId, ProjectRole role) {
         ProjectMember member = find(memberId);
+        checkOwner(member.getProject().getId());
 
         if(member.getRole() == ProjectRole.OWNER){
             throw new ConflictException("Нельзя изменить роль владельца");
@@ -107,14 +114,15 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     @Transactional
     public void removeMember(Long memberId) {
         ProjectMember member = find(memberId);
+        checkOwner(member.getProject().getId());
 
         if (member.getRole() == ProjectRole.OWNER) {
             throw new ConflictException("Нельзя удалить пользователя с ролью Owner");
         }
 
         projectMemberRepository.delete(member);
-
     }
+
 
     @Override
     @Transactional
@@ -135,6 +143,16 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     @Override
     public List<ProjectMember> getByProject(Long projectId) {
         return projectMemberRepository.findByProjectId(projectId);
+    }
+
+    private void checkOwner(Long projectId) {
+        Long currentUserId = userProvider.getCurrentUser().getId();
+        ProjectMember currentMember = projectMemberRepository
+                .findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ConflictException("Вы не участник проекта"));
+        if (currentMember.getRole() != ProjectRole.OWNER) {
+            throw new ConflictException("Только владелец проекта может выполнить это действие");
+        }
     }
 
 }

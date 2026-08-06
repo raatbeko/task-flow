@@ -13,4 +13,6 @@ public interface BoardMemberRepository extends BaseRepository<BoardMember, Long>
     @Modifying
     @Query("delete from BoardMember bm where bm.board.id = :boardId")
     void deleteByBoardId(@Param("boardId") Long boardId);
+
+    boolean existsByBoardIdAndProjectMemberId(Long boardId, Long projectMemberId);
 }
