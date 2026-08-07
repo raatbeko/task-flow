@@ -2,7 +2,10 @@ package kg.core.task.service.impl;
 
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.board.model.Board;
+import kg.core.boardMember.model.BoardRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
+import kg.core.security.validator.AccessGuard;
 import kg.core.tag.model.Tag;
 import kg.core.tag.repository.TagRepository;
 import kg.core.task.dtos.UpdateDto;
@@ -26,14 +29,16 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     TagRepository tagRepository;
     UserRepository userRepository;
     ProjectMemberRepository projectMemberRepository;
+    AccessGuard accessGuard;
 
     public TaskServiceImpl(TaskRepository repository, TagRepository tagRepository,
-                           UserRepository userRepository, ProjectMemberRepository projectMemberRepository) {
+                           UserRepository userRepository, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard) {
         super(repository);
         this.repository = repository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.projectMemberRepository = projectMemberRepository;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -46,6 +51,10 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void updatePurposeTags(Long id, UpdateDto request) {
         Task task = find(id);
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         addTagsToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idTags());
         repository.save(task);
     }
@@ -54,6 +63,10 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void updatePurposeUsers(Long id, UpdateDto request) {
         Task task = find(id);
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         addUsersToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idUsers());
         repository.save(task);
     }
@@ -62,6 +75,10 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void replacePurposeTags(Long id, UpdateDto request) {
         Task task = find(id);
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         task.getTags().clear();
         addTagsToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idTags());
     }
@@ -70,6 +87,10 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void replacePurposeUsers(Long id, UpdateDto request) {
         Task task = find(id);
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         task.getAssignees().clear();
         addUsersToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idUsers());
     }
@@ -77,6 +98,10 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     @Transactional
     public Task save(Task task) {
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         if (task.getId() == null) {
             task.setPosition(repository.countByBoardColumnId(task.getBoardColumn().getId()));
         }
@@ -84,8 +109,13 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Task task = get(id);
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
         repository.delete(task);
     }
 
@@ -94,6 +124,11 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     public void updatePosition(Long id, UpdateDto request) {
         Task task = get(id);
         Long boardColumnId = task.getBoardColumn().getId();
+
+        Board board = task.getBoardColumn().getBoard();
+        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
+
+
         int oldPosition = task.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
 

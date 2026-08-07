@@ -14,7 +14,9 @@ import kg.core.boardMember.repository.BoardMemberRepository;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
 import kg.core.projectMember.model.ProjectMember;
+import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
+import kg.core.security.validator.AccessGuard;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
@@ -33,20 +35,26 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     BoardMemberRepository boardMemberRepository;
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
+    AccessGuard accessGuard;
 
-    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository, BoardMemberRepository boardMemberRepository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository) {
+    protected BoardServiceImpl(BoardRepository boardRepository, ProjectRepository projectRepository,
+                               BoardMemberRepository boardMemberRepository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard) {
         super(boardRepository);
         this.boardRepository = boardRepository;
         this.projectRepository = projectRepository;
         this.boardMemberRepository = boardMemberRepository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
+        this.accessGuard = accessGuard;
     }
 
 
     @Override
     @Transactional
     public Board create(Long projectId, Board board) {
+
+        accessGuard.requireProjectRole(projectId, ProjectRole.EDITOR);
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
 
@@ -76,7 +84,13 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public void delete(Long id){
         Board board = find(id);
+
+        Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.OWNER);
+
         boardRepository.delete(board);
+
     }
 
     @Override
@@ -84,6 +98,9 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     public void updatePosition(Long id, BoardPositionRequest request) {
         Board board = find(id);
         Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
         int oldPosition = board.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
 
@@ -116,6 +133,10 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public void archive(Long id) {
         Board board = find(id);
+
+        Long projectId = board.getProject().getId();
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
         board.setStatus(BoardStatus.ARCHIVED);
         save(board);
     }
@@ -124,6 +145,11 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
     @Transactional
     public Board duplicate(Long id) {
         Board originalBoard = find(id);
+
+        Long projectId = originalBoard.getProject().getId();
+        accessGuard.requireBoardRole(originalBoard.getId(), projectId, BoardRole.EDITOR);
+
+
         int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
         Board copyBoard =  new Board();

@@ -12,6 +12,7 @@ import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
 import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
+import kg.core.security.validator.AccessGuard;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
@@ -28,12 +29,14 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     ProjectRepository repository;
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
+    AccessGuard accessGuard;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository ) {
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard ) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -63,6 +66,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void delete(Long id) {
         Project project = get(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.OWNER);
+
         if (project.getStatus() == ProjectStatus.ACTIVE) {
             repository.delete(project);
         } else {
@@ -74,6 +80,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void archive(Long id) {
         Project project = get(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.EDITOR);
+
         project.setStatus(ProjectStatus.ARCHIVED);
         repository.save(project);
     }
@@ -82,6 +91,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void unarchive(Long id) {
         Project project = get(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.EDITOR);
+
         project.setStatus(ProjectStatus.ACTIVE);
         repository.save(project);
     }

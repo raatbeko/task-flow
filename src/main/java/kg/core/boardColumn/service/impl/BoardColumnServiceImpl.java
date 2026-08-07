@@ -8,6 +8,8 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
+import kg.core.boardMember.model.BoardRole;
+import kg.core.security.validator.AccessGuard;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,13 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     BoardColumnRepository boardColumnRepository;
     BoardRepository boardRepository;
+    AccessGuard accessGuard;
 
-    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository) {
+    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository, AccessGuard accessGuard) {
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -34,6 +38,9 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     public BoardColumn create(Long boardId, BoardColumn column) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Доска не найдена"));
+
+        Long projectId = board.getProject().getId();
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.OWNER);
 
         int nextPosition = boardColumnRepository.countByBoardId(board.getId());
 
@@ -47,6 +54,12 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void updatePosition(Long id, BoardColumnPositionRequest request) {
         BoardColumn boardColumn = find(id);
+
+        Board board = boardColumn.getBoard();
+        Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
         Long boardId = boardColumn.getBoard().getId();
         int oldPosition = boardColumn.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
@@ -75,6 +88,11 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void delete(Long id) {
         BoardColumn boardColumn = find(id);
+        Board board = boardColumn.getBoard();
+        Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
         boardColumnRepository.delete(boardColumn);
     }
 
