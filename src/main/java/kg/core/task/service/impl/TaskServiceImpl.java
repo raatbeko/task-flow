@@ -122,7 +122,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     @Transactional
     public void updatePosition(Long id, UpdateDto request) {
-        Task task = get(id);
+        Task task = find(id);
         Long boardColumnId = task.getBoardColumn().getId();
 
         Board board = task.getBoardColumn().getBoard();
