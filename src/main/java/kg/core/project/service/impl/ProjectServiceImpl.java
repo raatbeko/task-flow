@@ -1,5 +1,6 @@
 package kg.core.project.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
@@ -11,6 +12,7 @@ import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.model.ProjectMember;
 import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
+import kg.core.security.validator.AccessGuard;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
@@ -27,19 +29,21 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     ProjectRepository repository;
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
+    AccessGuard accessGuard;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository ) {
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard ) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
+        this.accessGuard = accessGuard;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Project> findAll() {
         User currentUser = userProvider.getCurrentUser();
-        return repository.findAllByOwner(currentUser);
+        return repository.findAllProjectsByUserIdAndStatus(currentUser.getId(), InvitationStatus.ACCEPTED);
     }
 
     @Override
@@ -48,8 +52,12 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         Project project = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Проект с id: " + id + " не найден!"));
         User currentUser = userProvider.getCurrentUser();
-        if (!project.getOwner().getId().equals(currentUser.getId())) {
-            throw new NotFoundException("Проект с id: " + id + " не найден!");
+
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Проекс с id: " + id + " не найден!"));
+
+        if(projectMember.getInvitationStatus() != InvitationStatus.ACCEPTED) {
+            throw new NotFoundException("Проекс с id: " + id + " не найден!");
         }
         return project;
     }
@@ -58,6 +66,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void delete(Long id) {
         Project project = find(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.OWNER);
+
         if (project.getStatus() == ProjectStatus.ACTIVE) {
             repository.delete(project);
         } else {
@@ -69,6 +80,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void archive(Long id) {
         Project project = find(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.EDITOR);
+
         project.setStatus(ProjectStatus.ARCHIVED);
         repository.save(project);
     }
@@ -77,6 +91,9 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Transactional
     public void unarchive(Long id) {
         Project project = find(id);
+
+        accessGuard.requireProjectRole(project.getId(),  ProjectRole.EDITOR);
+
         project.setStatus(ProjectStatus.ACTIVE);
         repository.save(project);
     }

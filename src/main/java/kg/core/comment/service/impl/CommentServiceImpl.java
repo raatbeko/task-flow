@@ -1,18 +1,19 @@
 package kg.core.comment.service.impl;
 
-import kg.core.auth.service.impl.DefaultAccountContextProvider;
+import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.boardMember.model.BoardRole;
 import kg.core.comment.model.Comment;
 import kg.core.comment.repository.CommentRepository;
 import kg.core.comment.service.CommentService;
+import kg.core.security.validator.AccessGuard;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +26,16 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
     TaskRepository taskRepository;
     CommentRepository commentRepository;
     UserProvider userProvider;
+    AccessGuard accessGuard;
 
-    protected CommentServiceImpl(CommentRepository commentRepository, TaskRepository taskRepository, UserProvider userProvider) {
+    protected CommentServiceImpl(CommentRepository commentRepository,
+                                 TaskRepository taskRepository, UserProvider userProvider,
+                                 AccessGuard accessGuard) {
         super(commentRepository);
         this.taskRepository = taskRepository;
         this.commentRepository = commentRepository;
         this.userProvider = userProvider;
+        this.accessGuard = accessGuard;
     }
 
     @Override
@@ -38,6 +43,9 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
     public Comment create(Long taskId, Long parentId, String description) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Задача не найдена"));
+
+        accessGuard.requireBoardRole(task.getBoardColumn().getBoard().getId(),
+                task.getBoardColumn().getBoard().getProject().getId(), BoardRole.EDITOR);
 
         User currentUser = userProvider.getCurrentUser();
 
@@ -60,10 +68,14 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
     @Transactional
     public Comment update(Long id, String description) {
         Comment comment = find(id);
+
+        accessGuard.requireBoardRole(comment.getTask().getBoardColumn().getBoard().getId(),
+                comment.getTask().getBoardColumn().getBoard().getProject().getId(), BoardRole.EDITOR);
+
         User currentUser = userProvider.getCurrentUser();
 
         if(!comment.getAuthor().equals(currentUser)) {
-            throw new AccessDeniedException("Редактировать может только автор");
+            throw new ForbiddenException("Редактировать может только автор");
         }
 
         comment.setDescription(description);
@@ -74,10 +86,14 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
     @Transactional
     public void delete(Long id) {
         Comment comment = find(id);
+
+        accessGuard.requireBoardRole(comment.getTask().getBoardColumn().getBoard().getId(),
+                comment.getTask().getBoardColumn().getBoard().getProject().getId(), BoardRole.EDITOR);
+
         User currentUser = userProvider.getCurrentUser();
 
         if(!comment.getAuthor().equals(currentUser)) {
-            throw new AccessDeniedException("Удалять может только автор");
+            throw new ForbiddenException("Удалять может только автор");
         }
         commentRepository.delete(comment);
     }
