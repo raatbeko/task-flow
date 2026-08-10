@@ -65,7 +65,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void delete(Long id) {
-        Project project = get(id);
+        Project project = find(id);
 
         accessGuard.requireProjectRole(project.getId(),  ProjectRole.OWNER);
 
@@ -79,7 +79,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     @Override
     @Transactional
     public void archive(Long id) {
-        Project project = get(id);
+        Project project = find(id);
 
         accessGuard.requireProjectRole(project.getId(),  ProjectRole.EDITOR);
 
