@@ -1,6 +1,5 @@
 package kg.core.projectMember.endpoint.impl;
 
-import jakarta.validation.Valid;
 import kg.core.projectMember.dtos.InviteProjectMemberRequest;
 import kg.core.projectMember.dtos.ProjectMemberResponse;
 import kg.core.projectMember.dtos.RespondInvitationRequest;
@@ -13,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +36,8 @@ public class ProjectMemberEndpointImpl implements ProjectMemberEndpoint {
     }
 
     @Override
-    public ProjectMemberResponse respondToInvitation(Long memberId, RespondInvitationRequest request) {
-        ProjectMember member = projectMemberService.respondToInvitation(memberId, request.status());
+    public ProjectMemberResponse respondToInvitation(Long projectId, RespondInvitationRequest request) {
+        ProjectMember member = projectMemberService.respondToInvitation(projectId, request.status());
         return projectMemberMapper.toResponse(member);
     }
 

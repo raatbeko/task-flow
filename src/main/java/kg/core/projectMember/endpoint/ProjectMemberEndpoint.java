@@ -11,7 +11,7 @@ public interface ProjectMemberEndpoint {
 
     ProjectMemberResponse updateRole(Long memberId, UpdateMemberRoleRequest request);
 
-    ProjectMemberResponse respondToInvitation(Long memberId, RespondInvitationRequest request);
+    ProjectMemberResponse respondToInvitation(Long projectId, RespondInvitationRequest request);
 
     void removeMember(Long memberId);
 

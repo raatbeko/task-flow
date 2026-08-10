@@ -51,13 +51,13 @@ public class ProjectMemberController {
         return endpoint.updateRole(memberId, request);
     }
 
-    @PatchMapping("/{memberId}/respond")
+    @PatchMapping("/{projectId}/respond")
     @Operation(
             summary = "Ответить на приглашение",
             description = "Возвращяет информацию об участнике и его статус"
     )
-    public ProjectMemberResponse respondToInvitation(@PathVariable Long memberId, @Valid @RequestBody RespondInvitationRequest request){
-        return endpoint.respondToInvitation(memberId, request);
+    public ProjectMemberResponse respondToInvitation(@PathVariable Long projectId, @Valid @RequestBody RespondInvitationRequest request){
+        return endpoint.respondToInvitation(projectId, request);
     }
 
     @DeleteMapping("/{memberId}")

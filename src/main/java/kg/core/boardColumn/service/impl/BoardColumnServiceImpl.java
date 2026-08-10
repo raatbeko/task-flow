@@ -1,8 +1,6 @@
 package kg.core.boardColumn.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import kg.core.base.exception.ConflictException;
-import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
 import kg.core.board.repository.BoardRepository;
@@ -10,16 +8,14 @@ import kg.core.boardColumn.dtos.BoardColumnPositionRequest;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
 import kg.core.boardColumn.service.BoardColumnService;
-import kg.core.project.model.Project;
-import kg.core.project.model.ProjectStatus;
+import kg.core.boardMember.model.BoardRole;
+import kg.core.security.validator.AccessGuard;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static kg.core.project.model.QProject.project;
 
 
 @Service
@@ -28,25 +24,25 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
 
     BoardColumnRepository boardColumnRepository;
     BoardRepository boardRepository;
+    AccessGuard accessGuard;
 
-    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository) {
+    protected BoardColumnServiceImpl(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository, AccessGuard accessGuard) {
         super(boardColumnRepository);
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
-
+        this.accessGuard = accessGuard;
     }
 
     @Override
     @Transactional
     public BoardColumn create(Long boardId, BoardColumn column) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new NotFoundException("Доска не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Доска не найдена"));
 
-        if (board.getProject().getStatus() == ProjectStatus.ARCHIVED) {
-            throw new ConflictException("Проект заархивирован, действие недоступно");
-        }
+        Long projectId = board.getProject().getId();
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.OWNER);
 
-        int nextPosition = boardColumnRepository.findNextPosition(board.getId());
+        int nextPosition = boardColumnRepository.countByBoardId(board.getId());
 
         column.setBoard(board);
         column.setPosition(nextPosition);
@@ -58,6 +54,12 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void updatePosition(Long id, BoardColumnPositionRequest request) {
         BoardColumn boardColumn = find(id);
+
+        Board board = boardColumn.getBoard();
+        Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
         Long boardId = boardColumn.getBoard().getId();
         int oldPosition = boardColumn.getPosition();
         int newPosition = request.position() != null ? request.position().intValue() : -1;
@@ -86,14 +88,12 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
     @Transactional
     public void delete(Long id) {
         BoardColumn boardColumn = find(id);
-        Long boardId = boardColumn.getBoard().getId();
-        boardColumnRepository.delete(boardColumn);
+        Board board = boardColumn.getBoard();
+        Long projectId = board.getProject().getId();
 
-        List<BoardColumn> remaining = boardColumnRepository.findByBoardIdOrderByPositionAsc(boardId);
-        for (int i = 0; i < remaining.size(); i++) {
-            remaining.get(i).setPosition(i);
-        }
-        boardColumnRepository.saveAll(remaining);
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
+        boardColumnRepository.delete(boardColumn);
     }
 
     @Override

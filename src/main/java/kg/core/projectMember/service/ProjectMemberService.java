@@ -13,7 +13,7 @@ public interface ProjectMemberService extends CrudService<ProjectMember, Long> {
 
     ProjectMember updateRole(Long memberId, ProjectRole role);
 
-    ProjectMember respondToInvitation(Long memberId, InvitationStatus status);
+    ProjectMember respondToInvitation(Long projectId, InvitationStatus status);
 
     void removeMember(Long memberId);
 
