@@ -37,7 +37,7 @@ public class TagServiceImpl extends DefaultCrudService<Tag, Long> implements Tag
     @Override
     @Transactional
     public void delete(Long id) {
-        Tag tag = get(id);
+        Tag tag = find(id);
 
         accessGuard.requireProjectRole(tag.getProject().getId(), ProjectRole.EDITOR);
 

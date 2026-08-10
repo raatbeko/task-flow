@@ -111,7 +111,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     @Transactional
     public void delete(Long id) {
-        Task task = get(id);
+        Task task = find(id);
 
         Board board = task.getBoardColumn().getBoard();
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
