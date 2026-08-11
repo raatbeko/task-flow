@@ -161,4 +161,6 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
         return boardRepository.save(copyBoard);
     }
+
+
 }

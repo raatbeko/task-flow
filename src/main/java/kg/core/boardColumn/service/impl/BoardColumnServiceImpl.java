@@ -42,7 +42,7 @@ public class BoardColumnServiceImpl extends DefaultCrudService<BoardColumn, Long
         Long projectId = board.getProject().getId();
         accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.OWNER);
 
-        int nextPosition = boardColumnRepository.countByBoardId(board.getId());
+        int nextPosition = boardColumnRepository.findNextPosition(board.getId());
 
         column.setBoard(board);
         column.setPosition(nextPosition);
