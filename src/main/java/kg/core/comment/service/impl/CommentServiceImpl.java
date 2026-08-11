@@ -57,8 +57,11 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
 
         Comment parent = null;
 
-        if(parentId != null){
+        if (parentId != null) {
             parent = find(parentId);
+            if (!parent.getTask().getId().equals(taskId)) {
+                throw new ConflictException("Родительский комментарий принадлежит другой задаче");
+            }
         }
 
         Comment comment = new Comment();
@@ -101,6 +104,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         if(!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Удалять может только автор");
         }
+        commentRepository.deleteByParentId(id);
         commentRepository.delete(comment);
     }
 

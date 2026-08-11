@@ -174,7 +174,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         accessGuard.requireBoardRole(originalBoard.getId(), projectId, BoardRole.EDITOR);
 
 
-        int nextPosition = boardRepository.findNextPosition(originalBoard.getProject().getId());
+        int nextPosition = boardRepository.countByProjectId(originalBoard.getProject().getId());
 
         Board copyBoard = new Board();
         copyBoard.setProject(originalBoard.getProject());

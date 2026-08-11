@@ -8,6 +8,7 @@ import kg.core.board.model.BoardStatus;
 import kg.core.boardMember.model.BoardRole;
 import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
+import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.security.validator.AccessGuard;
 import kg.core.tag.model.Tag;
@@ -189,7 +190,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     public void addUsersToTask(Task task, Long projectId, Long[] userIds) {
         if (userIds == null) return;
         for (Long userId : userIds) {
-            if (!projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+            if (!projectMemberRepository.existsByProjectIdAndUserIdAndInvitationStatus(projectId, userId, InvitationStatus.ACCEPTED)) {
                 throw new NotFoundException("Пользователь не найден в проекте с id: " + userId);
             }
             User user = userRepository.findById(userId)

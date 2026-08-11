@@ -43,7 +43,6 @@ public class TaskEndpointImpl implements TaskEndpoint {
             service.addUsersToTask(task, projectId, dto.assignees().toArray(new Long[0]));
         }
 
-
         if (dto.tags() != null) {
             service.addTagsToTask(task, projectId, dto.tags());
         }

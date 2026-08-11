@@ -133,6 +133,7 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public void leaveProject(Long projectId) {
         User currentUser = userProvider.getCurrentUser();
 
+
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("Вы не являетесь участником проекта"));
 
@@ -147,6 +148,8 @@ public class ProjectMemberServiceImpl extends DefaultCrudService<ProjectMember, 
     public List<ProjectMember> getByProject(Long projectId) {
         return projectMemberRepository.findByProjectId(projectId);
     }
+
+
 
 }
 
