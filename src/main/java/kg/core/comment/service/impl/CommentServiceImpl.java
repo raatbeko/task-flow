@@ -1,5 +1,6 @@
 package kg.core.comment.service.impl;
 
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
@@ -7,6 +8,7 @@ import kg.core.boardMember.model.BoardRole;
 import kg.core.comment.model.Comment;
 import kg.core.comment.repository.CommentRepository;
 import kg.core.comment.service.CommentService;
+import kg.core.project.model.ProjectStatus;
 import kg.core.security.validator.AccessGuard;
 import kg.core.task.model.Task;
 import kg.core.task.repository.TaskRepository;
@@ -44,6 +46,10 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Задача не найдена"));
 
+        if (task.getBoardColumn().getBoard().getProject().getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+
         accessGuard.requireBoardRole(task.getBoardColumn().getBoard().getId(),
                 task.getBoardColumn().getBoard().getProject().getId(), BoardRole.EDITOR);
 
@@ -74,7 +80,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
 
         User currentUser = userProvider.getCurrentUser();
 
-        if(!comment.getAuthor().equals(currentUser)) {
+        if(!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Редактировать может только автор");
         }
 
@@ -92,7 +98,7 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
 
         User currentUser = userProvider.getCurrentUser();
 
-        if(!comment.getAuthor().equals(currentUser)) {
+        if(!comment.getAuthor().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Удалять может только автор");
         }
         commentRepository.delete(comment);

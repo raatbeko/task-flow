@@ -1,9 +1,13 @@
 package kg.core.task.service.impl;
 
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
+import kg.core.board.model.BoardStatus;
 import kg.core.boardMember.model.BoardRole;
+import kg.core.project.model.Project;
+import kg.core.project.model.ProjectStatus;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.security.validator.AccessGuard;
 import kg.core.tag.model.Tag;
@@ -101,6 +105,16 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public Task save(Task task) {
 
+        Project project = task.getBoardColumn().getBoard().getProject();
+
+        if (project.getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+
+        if (task.getBoardColumn().getBoard().getStatus() == BoardStatus.ARCHIVED) {
+            throw new ConflictException("Доска заархивирована, действие недоступно");
+        }
+
         Board board = task.getBoardColumn().getBoard();
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
@@ -115,10 +129,15 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     public void delete(Long id) {
         Task task = find(id);
 
-        Board board = task.getBoardColumn().getBoard();
-        accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
-
+        Long boardColumnId = task.getBoardColumn().getId();
         repository.delete(task);
+
+        List<Task> remaining = repository.findByBoardColumnIdOrderByPositionAsc(boardColumnId);
+        for (int i = 0; i < remaining.size(); i++) {
+            remaining.get(i).setPosition(i);
+        }
+        repository.saveAll(remaining);
+
     }
 
     @Override
