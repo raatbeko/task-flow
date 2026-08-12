@@ -1,5 +1,6 @@
 package kg.core.boardMember.service.impl;
 
+import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
@@ -27,12 +28,15 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
     ProjectMemberRepository projectMemberRepository;
     AccessGuard accessGuard;
 
+
     protected BoardMemberServiceImpl(BoardMemberRepository boardMemberRepository, BoardRepository boardRepository, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard) {
         super(boardMemberRepository);
         this.boardMemberRepository = boardMemberRepository;
         this.boardRepository = boardRepository;
         this.projectMemberRepository = projectMemberRepository;
         this.accessGuard = accessGuard;
+
+
     }
 
     @Override
@@ -42,27 +46,29 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new NotFoundException("Доска не найдена"));
 
+        accessGuard.requireBoardRole(boardId, board.getProject().getId(), BoardRole.OWNER);
+
+        if (boardMemberRepository.existsByBoardIdAndProjectMemberId(boardId, memberId)) {
+            throw new ConflictException("Участник уже добавлен в эту доску");
+        }
 
         ProjectMember projectMember = projectMemberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Участник проекта не найден"));
 
-        accessGuard.requireBoardRole(boardId, board.getProject().getId(), BoardRole.OWNER);
-
         if (projectMember.getInvitationStatus() != InvitationStatus.ACCEPTED) {
-            throw new IllegalArgumentException("Участник не принял приглашение в проект");
+            throw new ConflictException("Участник не принял приглашение в проект");
         }
 
         if (!projectMember.getProject().getId().equals(board.getProject().getId())) {
-            throw new IllegalArgumentException("Участник не состоит в проекте этой доски");
+            throw new ConflictException("Участник не состоит в проекте этой доски");
         }
+
         BoardMember boardMember = new BoardMember();
         boardMember.setBoard(board);
         boardMember.setProjectMember(projectMember);
         boardMember.setRole(role);
 
         return save(boardMember);
-
-
     }
 
     @Override
@@ -71,6 +77,7 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
         BoardMember boardMember = find(memberId);
 
         Board board = boardMember.getBoard();
+
 
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.OWNER);
 
@@ -90,4 +97,5 @@ public class BoardMemberServiceImpl extends DefaultCrudService<BoardMember, Long
         boardMemberRepository.delete(boardMember);
 
     }
+
 }

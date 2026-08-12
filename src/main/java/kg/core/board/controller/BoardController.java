@@ -9,7 +9,6 @@ import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.dtos.BoardResponse;
 import kg.core.board.dtos.BoardUpdateRequest;
 import kg.core.board.endpoint.BoardEndpoint;
-import kg.core.task.dtos.UpdatePosition;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

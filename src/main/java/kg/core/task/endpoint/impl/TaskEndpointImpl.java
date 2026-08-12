@@ -1,7 +1,6 @@
 package kg.core.task.endpoint.impl;
 
-import kg.core.task.dtos.TaskDto;
-import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.*;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.task.mapper.TaskMapper;
 import kg.core.task.model.Task;
@@ -37,6 +36,18 @@ public class TaskEndpointImpl implements TaskEndpoint {
     public TaskDto create(TaskDto dto) {
         Task task = mapper.toEntity(dto);
         service.save(task);
+
+        Long projectId = task.getBoardColumn().getBoard().getProject().getId();
+
+        if (dto.assignees() != null && !dto.assignees().isEmpty()) {
+            service.addUsersToTask(task, projectId, dto.assignees().toArray(new Long[0]));
+        }
+
+        if (dto.tags() != null) {
+            service.addTagsToTask(task, projectId, dto.tags());
+        }
+
+        service.save(task);
         return mapper.toDto(task);
     }
 
@@ -48,33 +59,38 @@ public class TaskEndpointImpl implements TaskEndpoint {
     }
 
     @Override
-    public UpdateDto changePosition(Long id, UpdateDto request) {
+    public UpdatePositionDto changePosition(Long id, UpdatePositionDto request) {
         service.updatePosition(id, request);
         return request;
     }
 
     @Override
-    public UpdateDto purposeTags(Long id, UpdateDto request) {
+    public UpdateTagsDto purposeTags(Long id, UpdateTagsDto request) {
         service.updatePurposeTags(id, request);
         return request;
     }
 
     @Override
-    public UpdateDto purposeUsers(Long id, UpdateDto request) {
+    public UpdateUsersDto purposeUsers(Long id, UpdateUsersDto request) {
         service.updatePurposeUsers(id, request);
         return request;
     }
 
     @Override
-    public UpdateDto replacePurposeTags(Long id, UpdateDto request) {
+    public UpdateTagsDto replacePurposeTags(Long id, UpdateTagsDto request) {
         service.replacePurposeTags(id, request);
         return request;
     }
 
     @Override
-    public UpdateDto replacePurposeUsers(Long id, UpdateDto request) {
+    public UpdateUsersDto replacePurposeUsers(Long id, UpdateUsersDto request) {
         service.replacePurposeUsers(id, request);
         return request;
+    }
+
+    @Override
+    public void delete(Long id) {
+        service.delete(id);
     }
 
 }

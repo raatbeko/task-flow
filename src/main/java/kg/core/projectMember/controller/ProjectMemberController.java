@@ -53,7 +53,7 @@ public class ProjectMemberController {
 
     @PatchMapping("/{projectId}/respond")
     @Operation(
-            summary = "Ответить на приглащение",
+            summary = "Ответить на приглашение",
             description = "Возвращяет информацию об участнике и его статус"
     )
     public ProjectMemberResponse respondToInvitation(@PathVariable Long projectId, @Valid @RequestBody RespondInvitationRequest request){
@@ -71,7 +71,7 @@ public class ProjectMemberController {
         endpoint.removeMember(memberId);
     }
 
-    @DeleteMapping("/{projectId/leave}")
+    @DeleteMapping("/{projectId}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
             summary = "Покинуть проект",

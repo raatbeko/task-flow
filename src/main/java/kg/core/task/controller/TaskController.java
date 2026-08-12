@@ -3,8 +3,7 @@ package kg.core.task.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.core.task.dtos.TaskDto;
-import kg.core.task.dtos.UpdateDto;
+import kg.core.task.dtos.*;
 import kg.core.task.endpoint.TaskEndpoint;
 import kg.core.utils.PathUtils;
 import lombok.AccessLevel;
@@ -59,7 +58,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @Operation(
-            summary = "Обнововить задачу",
+            summary = "Обновить задачу",
             description = "Возвращяет информацию о задаче"
     )
     public TaskDto update(@PathVariable Long id, @Valid @RequestBody TaskDto request) {
@@ -71,7 +70,7 @@ public class TaskController {
             summary = "Поменять позицию",
             description = "Меняет позицию задачи"
     )
-    public UpdateDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+    public UpdatePositionDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionDto request) {
         return endpoint.changePosition(id, request);
     }
 
@@ -80,7 +79,7 @@ public class TaskController {
             summary = "Добавить теги задачи",
             description = "Добавление тегов к задаче"
     )
-    public UpdateDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+    public UpdateTagsDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
         return endpoint.purposeTags(id, request);
     }
 
@@ -89,7 +88,7 @@ public class TaskController {
             summary = "Добавить пользователя к задаче",
             description = "Назначение пользователя к задаче"
     )
-    public UpdateDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+    public UpdateUsersDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
         return endpoint.purposeUsers(id, request);
     }
 
@@ -98,16 +97,24 @@ public class TaskController {
             summary = "Заменить теги задачи",
             description = "Очищает текущие теги задачи и назначает переданные"
     )
-    public UpdateDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+    public UpdateTagsDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
         return endpoint.replacePurposeTags(id, request);
     }
 
-    @PutMapping("/{id}/replace-users")
+        @PutMapping("/{id}/replace-users")
     @Operation(
             summary = "Заменить пользователей задачи",
             description = "Очищает текущих исполнителей задачи и назначает переданных"
     )
-    public UpdateDto replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateDto request) {
+    public UpdateUsersDto  replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
         return endpoint.replacePurposeUsers(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Удалить задачу",
+            description = "Удаляет задачу по ID")
+    public void delete(@PathVariable Long id) {
+        endpoint.delete(id);
     }
 }

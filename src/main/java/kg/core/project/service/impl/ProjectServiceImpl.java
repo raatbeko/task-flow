@@ -1,9 +1,14 @@
 package kg.core.project.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import kg.core.attachment.repository.AttachmentRepository;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.board.repository.BoardRepository;
+import kg.core.boardColumn.repository.BoardColumnRepository;
+import kg.core.boardMember.repository.BoardMemberRepository;
+import kg.core.comment.repository.CommentRepository;
 import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
 import kg.core.project.repository.ProjectRepository;
@@ -13,6 +18,8 @@ import kg.core.projectMember.model.ProjectMember;
 import kg.core.projectMember.model.ProjectRole;
 import kg.core.projectMember.repository.ProjectMemberRepository;
 import kg.core.security.validator.AccessGuard;
+import kg.core.tag.repository.TagRepository;
+import kg.core.task.repository.TaskRepository;
 import kg.core.user.model.User;
 import kg.core.utils.UserProvider;
 import lombok.AccessLevel;
@@ -30,13 +37,32 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
     UserProvider userProvider;
     ProjectMemberRepository projectMemberRepository;
     AccessGuard accessGuard;
+    CommentRepository commentRepository;
+    BoardRepository boardRepository;
+    TaskRepository taskRepository;
+    AttachmentRepository attachmentRepository;
+    BoardMemberRepository boardMemberRepository;
+    BoardColumnRepository boardColumnRepository;
+    TagRepository tagRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard ) {
+
+    public ProjectServiceImpl(ProjectRepository repository, UserProvider userProvider,
+                              CommentRepository commentRepository, BoardRepository boardRepository,
+                              TaskRepository taskRepository, AttachmentRepository attachmentRepository,
+                              BoardMemberRepository boardMemberRepository, BoardColumnRepository boardColumnRepository,
+                              TagRepository tagRepository, ProjectMemberRepository projectMemberRepository, AccessGuard accessGuard ) {
         super(repository);
         this.repository = repository;
         this.userProvider = userProvider;
         this.projectMemberRepository = projectMemberRepository;
         this.accessGuard = accessGuard;
+        this.commentRepository = commentRepository;
+        this.boardRepository = boardRepository;
+        this.taskRepository = taskRepository;
+        this.attachmentRepository = attachmentRepository;
+        this.boardMemberRepository = boardMemberRepository;
+        this.boardColumnRepository = boardColumnRepository;
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -69,11 +95,23 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
 
         accessGuard.requireProjectRole(project.getId(),  ProjectRole.OWNER);
 
-        if (project.getStatus() == ProjectStatus.ACTIVE) {
-            repository.delete(project);
-        } else {
-            throw new ConflictException("Проект с id " + id + " заархивирован. Сначала восстановите проект.");
+        if (project.getStatus() != ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Сначала заархивируйте проект, потом удаляйте");
         }
+        List<Long> boardIds = boardRepository.findIdsByProjectId(id);
+
+        for (Long boardId : boardIds) {
+            commentRepository.deleteByBoardId(boardId);
+            attachmentRepository.deleteByBoardId(boardId);
+            taskRepository.deleteByBoardId(boardId);
+            boardMemberRepository.deleteByBoardId(boardId);
+            boardColumnRepository.deleteByBoardId(boardId);
+        }
+        boardRepository.deleteByProjectId(id);
+        tagRepository.deleteByProjectId(id);
+        projectMemberRepository.deleteByProjectId(id);
+
+        repository.delete(project);
     }
 
     @Override

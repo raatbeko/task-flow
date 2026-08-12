@@ -14,9 +14,7 @@ public interface ProjectEndpoint {
 
     List<ProjectResponse> getAll();
 
-//    projectRequest create(projectRequest dto);
-
-    ProjectResponse update(Long id, ProjectRequest dto);
+    ProjectResponse update(Long id, ProjectRequest request);
 
     void archive(Long id);
 

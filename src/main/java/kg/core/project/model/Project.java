@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -38,11 +39,11 @@ public class Project extends AuditableEntity {
     @Column(name = "status")
     ProjectStatus status;
 
-    @ManyToMany
+    @ManyToMany( cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "m2m_tag_to_project",
             joinColumns = {@JoinColumn(name = "project_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private Collection<Tag> tags;
+    private Collection<Tag> tags = new ArrayList<>();
 
 }

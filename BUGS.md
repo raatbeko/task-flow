@@ -368,7 +368,7 @@ task.setPosition(repository.countByBoardColumnId(...));
 ### N-1. Отсутствует валидация в DTO задач и тегов
 **Файлы:** `task/dtos/TaskDto.java`, `tag/dtos/TagDto.java`
 
-Стоит `@Valid` в контроллерах, но в самих DTO нет ни одной аннотации
+Стоит `@Valid` в контроллерах, но в самих DTO нет ни одной аннотации!
 (`@NotBlank`, `@NotNull`, `@Size`). Проверка срабатывает только на уровне Hibernate
 при flush → 500 вместо 400 с понятным сообщением.
 Для сравнения, в `board/dtos`, `boardColumn/dtos`, `auth/dtos` валидация есть.
