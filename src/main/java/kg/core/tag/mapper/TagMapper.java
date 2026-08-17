@@ -1,9 +1,8 @@
 package kg.core.tag.mapper;
 
-import jakarta.persistence.EntityNotFoundException;
+import kg.core.base.exception.NotFoundException;
 import kg.core.project.model.Project;
 import kg.core.project.repository.ProjectRepository;
-
 import kg.core.tag.dtos.TagDto;
 import kg.core.tag.model.Tag;
 import org.mapstruct.*;
@@ -35,7 +34,7 @@ public abstract class TagMapper {
     protected Project projectIdToProject(Long projectId) {
         if (projectId == null) return null;
         return projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
+                .orElseThrow(() -> new NotFoundException("Проект не найден"));
     }
 
 }

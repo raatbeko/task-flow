@@ -20,4 +20,5 @@ public interface BoardService extends CrudService<Board, Long> {
     void updatePosition(Long id, BoardPositionRequest request);
 
     List<Board> findByProjectId(Long id);
+    void unarchive(Long id);
 }

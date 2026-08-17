@@ -6,7 +6,6 @@ import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.model.Board;
 import kg.core.board.model.BoardStatus;
 import kg.core.boardMember.model.BoardRole;
-import kg.core.project.model.Project;
 import kg.core.project.model.ProjectStatus;
 import kg.core.projectMember.model.InvitationStatus;
 import kg.core.projectMember.repository.ProjectMemberRepository;
@@ -60,6 +59,8 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         Task task = find(id);
 
         Board board = task.getBoardColumn().getBoard();
+
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         addTagsToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idTags());
@@ -70,8 +71,9 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void updatePurposeUsers(Long id, UpdateUsersDto request) {
         Task task = find(id);
-
         Board board = task.getBoardColumn().getBoard();
+
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         addUsersToTask(task, task.getBoardColumn().getBoard().getProject().getId(), request.idUsers());
@@ -84,6 +86,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         Task task = find(id);
 
         Board board = task.getBoardColumn().getBoard();
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         task.getTags().clear();
@@ -96,6 +99,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         Task task = find(id);
 
         Board board = task.getBoardColumn().getBoard();
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         task.getAssignees().clear();
@@ -105,18 +109,9 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Override
     @Transactional
     public Task save(Task task) {
-
-        Project project = task.getBoardColumn().getBoard().getProject();
-
-        if (project.getStatus() == ProjectStatus.ARCHIVED) {
-            throw new ConflictException("Проект заархивирован, действие недоступно");
-        }
-
-        if (task.getBoardColumn().getBoard().getStatus() == BoardStatus.ARCHIVED) {
-            throw new ConflictException("Доска заархивирована, действие недоступно");
-        }
-
         Board board = task.getBoardColumn().getBoard();
+
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         if (task.getId() == null) {
@@ -129,6 +124,9 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
     @Transactional
     public void delete(Long id) {
         Task task = find(id);
+        Board board = task.getBoardColumn().getBoard();
+
+        checkNotArchived(board);
 
         Long boardColumnId = task.getBoardColumn().getId();
         repository.delete(task);
@@ -148,6 +146,7 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
         Long boardColumnId = task.getBoardColumn().getId();
 
         Board board = task.getBoardColumn().getBoard();
+        checkNotArchived(board);
         accessGuard.requireBoardRole(board.getId(), board.getProject().getId(), BoardRole.EDITOR);
 
         int oldPosition = task.getPosition();
@@ -196,6 +195,15 @@ public class TaskServiceImpl extends DefaultCrudService<Task, Long> implements T
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("Пользователь не найден с id: " + userId));
             task.getAssignees().add(user);
+        }
+    }
+
+    private void checkNotArchived(Board board) {
+        if (board.getProject().getStatus() == ProjectStatus.ARCHIVED) {
+            throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+        if (board.getStatus() == BoardStatus.ARCHIVED) {
+            throw new ConflictException("Доска заархивирована, действие недоступно");
         }
     }
 

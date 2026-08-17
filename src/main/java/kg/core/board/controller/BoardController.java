@@ -113,5 +113,13 @@ public class BoardController {
         return endpoint.findByProjectId(id);
     }
 
+    @PatchMapping("/{id}/unarchive")
+    @Operation(
+            summary = "Разархивировать доску",
+            description = "Меняет статус доски с ARCHIVED на ACTIVE"
+    )
+    public void unarchive(@PathVariable Long id) {
+        endpoint.unarchive(id);
+    }
 }
 
