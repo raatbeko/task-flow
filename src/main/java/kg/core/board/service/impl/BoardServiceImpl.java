@@ -1,8 +1,8 @@
 package kg.core.board.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.ForbiddenException;
+import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
 import kg.core.board.dtos.BoardPositionRequest;
 import kg.core.board.model.Board;
@@ -70,7 +70,7 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
         accessGuard.requireProjectRole(projectId, ProjectRole.EDITOR);
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
+                .orElseThrow(() -> new NotFoundException("Проект не найден"));
 
         if (project.getStatus() == ProjectStatus.ARCHIVED) {
             throw new ConflictException("Проект заархивирован, действие недоступно");
@@ -211,6 +211,22 @@ public class BoardServiceImpl extends DefaultCrudService<Board, Long> implements
 
         }
         return copyBoard;
+    }
+
+    @Override
+    @Transactional
+    public void unarchive(Long id){
+        Board board = find(id);
+        Long projectId = board.getProject().getId();
+
+        accessGuard.requireBoardRole(board.getId(), projectId, BoardRole.EDITOR);
+
+        if(board.getProject().getStatus() == ProjectStatus.ARCHIVED){
+            throw new ConflictException("Нельзя разархивировать доску в заархивированном проекте");
+        }
+
+        board.setStatus(BoardStatus.ACTIVE);
+        save(board);
     }
 
 }

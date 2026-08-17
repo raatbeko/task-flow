@@ -1,6 +1,5 @@
 package kg.core.project.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import kg.core.attachment.repository.AttachmentRepository;
 import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.NotFoundException;
@@ -80,7 +79,7 @@ public class ProjectServiceImpl extends DefaultCrudService<Project, Long> implem
         User currentUser = userProvider.getCurrentUser();
 
         ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Проекс с id: " + id + " не найден!"));
+                .orElseThrow(() -> new NotFoundException("Проекс с id: " + id + " не найден!"));
 
         if(projectMember.getInvitationStatus() != InvitationStatus.ACCEPTED) {
             throw new NotFoundException("Проекс с id: " + id + " не найден!");

@@ -4,6 +4,7 @@ import kg.core.base.exception.ConflictException;
 import kg.core.base.exception.ForbiddenException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.base.service.impl.DefaultCrudService;
+import kg.core.board.model.BoardStatus;
 import kg.core.boardMember.model.BoardRole;
 import kg.core.comment.model.Comment;
 import kg.core.comment.repository.CommentRepository;
@@ -48,6 +49,10 @@ public class CommentServiceImpl extends DefaultCrudService<Comment, Long> implem
 
         if (task.getBoardColumn().getBoard().getProject().getStatus() == ProjectStatus.ARCHIVED) {
             throw new ConflictException("Проект заархивирован, действие недоступно");
+        }
+
+        if(task.getBoardColumn().getBoard().getStatus() == BoardStatus.ARCHIVED){
+            throw new ConflictException("Доска заархивирована, действие недоступно");
         }
 
         accessGuard.requireBoardRole(task.getBoardColumn().getBoard().getId(),

@@ -25,5 +25,7 @@ public interface BoardEndpoint {
 
     List<BoardResponse> findByProjectId(Long id);
 
+    void unarchive(Long id);
+
 
 }

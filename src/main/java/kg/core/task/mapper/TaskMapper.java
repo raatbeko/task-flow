@@ -1,6 +1,5 @@
 package kg.core.task.mapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import kg.core.base.exception.NotFoundException;
 import kg.core.boardColumn.model.BoardColumn;
 import kg.core.boardColumn.repository.BoardColumnRepository;
@@ -57,8 +56,6 @@ public abstract class TaskMapper {
     public abstract Task update(TaskDto dto, @MappingTarget Task entity);
 
     public abstract List<TaskDto> toDtos(List<Task> entities);
-
-    public abstract List<Task> toEntities(List<TaskDto> dtos);
 
     @Named("boardColumnIdToBoardColumn")
     protected BoardColumn boardColumnIdToBoardColumn(Long boardColumnId) {

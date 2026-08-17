@@ -70,7 +70,7 @@ public class TaskController {
             summary = "Поменять позицию",
             description = "Меняет позицию задачи"
     )
-    public UpdatePositionDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionDto request) {
+    public TaskDto changePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionDto request) {
         return endpoint.changePosition(id, request);
     }
 
@@ -79,7 +79,7 @@ public class TaskController {
             summary = "Добавить теги задачи",
             description = "Добавление тегов к задаче"
     )
-    public UpdateTagsDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
+    public TaskDto purposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
         return endpoint.purposeTags(id, request);
     }
 
@@ -88,7 +88,7 @@ public class TaskController {
             summary = "Добавить пользователя к задаче",
             description = "Назначение пользователя к задаче"
     )
-    public UpdateUsersDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
+    public TaskDto purposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
         return endpoint.purposeUsers(id, request);
     }
 
@@ -97,7 +97,7 @@ public class TaskController {
             summary = "Заменить теги задачи",
             description = "Очищает текущие теги задачи и назначает переданные"
     )
-    public UpdateTagsDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
+    public TaskDto replacePurposeTags(@PathVariable Long id, @Valid @RequestBody UpdateTagsDto request) {
         return endpoint.replacePurposeTags(id, request);
     }
 
@@ -106,7 +106,7 @@ public class TaskController {
             summary = "Заменить пользователей задачи",
             description = "Очищает текущих исполнителей задачи и назначает переданных"
     )
-    public UpdateUsersDto  replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
+    public TaskDto  replacePurposeUsers(@PathVariable Long id, @Valid @RequestBody UpdateUsersDto request) {
         return endpoint.replacePurposeUsers(id, request);
     }
 

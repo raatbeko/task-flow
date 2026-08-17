@@ -68,4 +68,9 @@ public class BoardEndpointImpl implements BoardEndpoint {
     public List<BoardResponse> findByProjectId(Long projectId) {
         return boardMapper.toResponse(boardService.findByProjectId(projectId));
     }
+
+    @Override
+    public void unarchive(Long id){
+        boardService.unarchive(id);
+    }
 }

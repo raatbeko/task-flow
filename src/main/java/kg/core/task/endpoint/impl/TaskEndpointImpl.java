@@ -59,33 +59,33 @@ public class TaskEndpointImpl implements TaskEndpoint {
     }
 
     @Override
-    public UpdatePositionDto changePosition(Long id, UpdatePositionDto request) {
+    public TaskDto changePosition(Long id, UpdatePositionDto request) {
         service.updatePosition(id, request);
-        return request;
+        return mapper.toDto(service.find(id));
     }
 
     @Override
-    public UpdateTagsDto purposeTags(Long id, UpdateTagsDto request) {
+    public TaskDto purposeTags(Long id, UpdateTagsDto request) {
         service.updatePurposeTags(id, request);
-        return request;
+        return mapper.toDto(service.find(id));
     }
 
     @Override
-    public UpdateUsersDto purposeUsers(Long id, UpdateUsersDto request) {
+    public TaskDto purposeUsers(Long id, UpdateUsersDto request) {
         service.updatePurposeUsers(id, request);
-        return request;
+        return mapper.toDto(service.find(id));
     }
 
     @Override
-    public UpdateTagsDto replacePurposeTags(Long id, UpdateTagsDto request) {
+    public TaskDto replacePurposeTags(Long id, UpdateTagsDto request) {
         service.replacePurposeTags(id, request);
-        return request;
+        return mapper.toDto(service.find(id));
     }
 
     @Override
-    public UpdateUsersDto replacePurposeUsers(Long id, UpdateUsersDto request) {
+    public TaskDto replacePurposeUsers(Long id, UpdateUsersDto request) {
         service.replacePurposeUsers(id, request);
-        return request;
+        return mapper.toDto(service.find(id));
     }
 
     @Override

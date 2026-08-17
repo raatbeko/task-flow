@@ -17,9 +17,9 @@ public interface TaskEndpoint {
 
     TaskDto update(Long id, TaskDto dto);
 
-    UpdatePositionDto changePosition(Long id, @Valid UpdatePositionDto request);
-    UpdateTagsDto purposeTags(Long id, @Valid UpdateTagsDto request);
-    UpdateUsersDto purposeUsers(Long id, @Valid UpdateUsersDto request);
-    UpdateTagsDto replacePurposeTags(Long id, @Valid UpdateTagsDto request);
-    UpdateUsersDto replacePurposeUsers(Long id, @Valid UpdateUsersDto request);
+    TaskDto changePosition(Long id, @Valid UpdatePositionDto request);
+    TaskDto purposeTags(Long id, @Valid UpdateTagsDto request);
+    TaskDto purposeUsers(Long id, @Valid UpdateUsersDto request);
+    TaskDto replacePurposeTags(Long id, @Valid UpdateTagsDto request);
+    TaskDto replacePurposeUsers(Long id, @Valid UpdateUsersDto request);
 }
